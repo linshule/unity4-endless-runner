@@ -342,7 +342,7 @@ public class ProjectBuilder
         GameObject obj = new GameObject("Wall_O02");
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.parent = obj.transform;
-        cube.transform.localPosition = new Vector3(0f, 2.5f, 0f);
+        cube.transform.localPosition = new Vector3(0f, 1.5f, 0f);
         cube.transform.localScale = new Vector3(6f, 5f, 1f);
 
         Renderer r = cube.GetComponent<Renderer>();
