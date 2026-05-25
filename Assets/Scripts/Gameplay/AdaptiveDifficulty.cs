@@ -200,9 +200,9 @@ public class AdaptiveDifficulty : MonoBehaviour
         {
             obstacleSpawner.SetDifficulty(difficultyLevel);
 
-            // 微调间距
-            obstacleSpawner.spawnIntervalMin = Mathf.Lerp(baseSpawnIntervalMin, 0.5f, t);
-            obstacleSpawner.spawnIntervalMax = Mathf.Lerp(baseSpawnIntervalMax, 1.0f, t);
+            // 高难度缩小生成间距
+            obstacleSpawner.spawnDistanceMin = Mathf.Lerp(80f, 30f, t);
+            obstacleSpawner.spawnDistanceMax = Mathf.Lerp(150f, 60f, t);
         }
 
         // 3. 地形塌陷频率
