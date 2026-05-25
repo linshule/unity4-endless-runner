@@ -122,9 +122,10 @@ public class ProjectBuilder
             camObj = new GameObject("Main Camera");
             cam = camObj.AddComponent<Camera>();
         }
-        camObj.transform.position = new Vector3(0f, 6f, -8f);
+        camObj.transform.position = new Vector3(0f, 6f, -8f); // CameraFollow 会自动跟随玩家
         camObj.transform.rotation = Quaternion.Euler(30f, 0f, 0f);
         cam.backgroundColor = new Color(0.4f, 0.6f, 0.9f);
+        camObj.AddComponent<CameraFollow>();
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.fieldOfView = 60f;
         cam.nearClipPlane = 0.3f;

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class PlayerController : MonoBehaviour
@@ -169,7 +169,7 @@ public class PlayerController : MonoBehaviour
         // 用简单的 Y 坐标判断
         if (!isSliding)
         {
-            isGrounded = (transform.position.y <= 1.55f && verticalVelocity <= 0f);
+            isGrounded = (transform.position.y <= 1.2f && verticalVelocity <= 0f);
         }
         else
         {
@@ -177,7 +177,7 @@ public class PlayerController : MonoBehaviour
             isGrounded = (transform.position.y <= slideGroundY && verticalVelocity <= 0f);
         }
 
-        if (isGrounded && transform.position.y > 1.6f)
+        if (isGrounded && transform.position.y > 0.5f)
         {
             // 修正位置到地面
             Vector3 pos = transform.position;
