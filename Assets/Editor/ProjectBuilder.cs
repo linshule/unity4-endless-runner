@@ -185,47 +185,47 @@ public class ProjectBuilder
 
         // === 4. 游戏管理器集合 ===
         // GameManager
-        GameObject gmObj = CreateScriptObject("GameManager", typeof(GameManager));
+        CreateScriptObject("GameManager", typeof(GameManager));
         
         // TrackManager  
         CreateScriptObject("TrackManager", typeof(TrackManager));
 
         // ObstacleSpawner
-        GameObject osObj = CreateScriptObject("ObstacleSpawner", typeof(ObstacleSpawner));
+        CreateScriptObject("ObstacleSpawner", typeof(ObstacleSpawner));
 
         // TrainController
         GameObject tcObj = CreateScriptObject("TrainController", typeof(TrainController));
         tcObj.transform.position = new Vector3(0f, 1.5f, -100f);
 
         // TerrainCollapse
-        GameObject tcolObj = CreateScriptObject("TerrainCollapse", typeof(TerrainCollapse));
+        CreateScriptObject("TerrainCollapse", typeof(TerrainCollapse));
 
         // CoinSpawner
-        GameObject csObj = CreateScriptObject("CoinSpawner", typeof(CoinSpawner));
+        CreateScriptObject("CoinSpawner", typeof(CoinSpawner));
 
         // PowerUpManager
-        GameObject puObj = CreateScriptObject("PowerUpManager", typeof(PowerUpManager));
+        CreateScriptObject("PowerUpManager", typeof(PowerUpManager));
 
         // SkillManager
-        GameObject smObj = CreateScriptObject("SkillManager", typeof(SkillManager));
+        CreateScriptObject("SkillManager", typeof(SkillManager));
 
         // TimeRewind
-        GameObject trObj = CreateScriptObject("TimeRewind", typeof(TimeRewind));
+        CreateScriptObject("TimeRewind", typeof(TimeRewind));
 
         // UltimateDash
-        GameObject udObj = CreateScriptObject("UltimateDash", typeof(UltimateDash));
+        CreateScriptObject("UltimateDash", typeof(UltimateDash));
 
         // PhantomClone
-        GameObject pcObj = CreateScriptObject("PhantomClone", typeof(PhantomClone));
+        CreateScriptObject("PhantomClone", typeof(PhantomClone));
 
         // HUDController
-        GameObject hudObj = CreateScriptObject("HUDController", typeof(HUDController));
+        CreateScriptObject("HUDController", typeof(HUDController));
 
         // UIManager
-        GameObject uiObj = CreateScriptObject("UIManager", typeof(UIManager));
+        CreateScriptObject("UIManager", typeof(UIManager));
 
         // AdaptiveDifficulty
-        GameObject adObj = CreateScriptObject("AdaptiveDifficulty", typeof(AdaptiveDifficulty));
+        CreateScriptObject("AdaptiveDifficulty", typeof(AdaptiveDifficulty));
 
         // === 5. 玩家 ===
         GameObject playerObj = new GameObject("Player");
