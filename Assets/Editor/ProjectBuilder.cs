@@ -5,6 +5,17 @@ using System.Collections.Generic;
 
 public class ProjectBuilder
 {
+    // === 创建几何体并立即覆盖材质（消除 Edit Mode 材质泄露） ===
+    static GameObject CreatePrimSafe(PrimitiveType type)
+    {
+        GameObject obj = GameObject.CreatePrimitive(type);
+        Renderer r = obj.GetComponent<Renderer>();
+        if (r != null)
+        {
+            r.sharedMaterial = new Material(Shader.Find("Diffuse"));
+        }
+        return obj;
+    }
     // === 安全着色（避免 Edit Mode 材质泄露） ===
     static void SetCubeColor(GameObject cube, Color color)
     {
@@ -152,7 +163,7 @@ public class ProjectBuilder
 
         for (int i = 0; i < 3; i++)
         {
-            GameObject track = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject track = CreatePrimSafe(PrimitiveType.Cube);
             track.name = laneNames[i];
             track.transform.position = new Vector3(laneX[i], 0f, 200f);
             track.transform.localScale = new Vector3(5f, 0.5f, 400f);
@@ -233,7 +244,7 @@ public class ProjectBuilder
         playerObj.AddComponent<PlayerController>();
 
         // 玩家视觉：Capsule 身体
-        GameObject body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        GameObject body = CreatePrimSafe(PrimitiveType.Capsule);
         body.name = "PlayerBody";
         body.transform.parent = playerObj.transform;
         body.transform.localPosition = new Vector3(0f, 1f, 0f);
@@ -245,7 +256,7 @@ public class ProjectBuilder
         SetCubeColor(body, Color.white);
 
         // 玩家视觉：Sphere 头部
-        GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        GameObject head = CreatePrimSafe(PrimitiveType.Sphere);
         head.name = "PlayerHead";
         head.transform.parent = playerObj.transform;
         head.transform.localPosition = new Vector3(0f, 1.8f, 0f);
@@ -323,7 +334,7 @@ public class ProjectBuilder
     static void CreateStonePrefab()
     {
         GameObject obj = new GameObject("Stone_O01");
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject cube = CreatePrimSafe(PrimitiveType.Cube);
         cube.transform.parent = obj.transform;
         cube.transform.localPosition = Vector3.zero;
         cube.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
@@ -346,7 +357,7 @@ public class ProjectBuilder
     static void CreateWallPrefab()
     {
         GameObject obj = new GameObject("Wall_O02");
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject cube = CreatePrimSafe(PrimitiveType.Cube);
         cube.transform.parent = obj.transform;
         cube.transform.localPosition = new Vector3(0f, 0.75f, 0f);
         cube.transform.localScale = new Vector3(6f, 5f, 1f);
@@ -370,7 +381,7 @@ public class ProjectBuilder
 
         for (int i = 0; i < 3; i++)
         {
-            GameObject spike = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            GameObject spike = CreatePrimSafe(PrimitiveType.Cylinder);
             spike.name = "Spike_" + i;
             spike.transform.parent = obj.transform;
             spike.transform.localPosition = new Vector3((i - 1) * 0.5f, 0.3f, 0f);
@@ -401,7 +412,7 @@ public class ProjectBuilder
     {
         GameObject obj = new GameObject("Spinner_O05");
 
-        GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject bar = CreatePrimSafe(PrimitiveType.Cube);
         bar.transform.parent = obj.transform;
         bar.transform.localPosition = new Vector3(0f, 2f, 0f);
         bar.transform.localScale = new Vector3(6f, 0.5f, 0.5f);
@@ -416,7 +427,7 @@ public class ProjectBuilder
         tag.isDynamic = true;
 
         // 旋转轴立柱
-        GameObject pole = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        GameObject pole = CreatePrimSafe(PrimitiveType.Cylinder);
         pole.transform.parent = obj.transform;
         pole.transform.localPosition = new Vector3(0f, 1.2f, 0f);
         pole.transform.localScale = new Vector3(0.15f, 1.2f, 0.15f);
@@ -436,7 +447,7 @@ public class ProjectBuilder
         tag.isTrap = true;
 
         // 可视指示器：黑色平板
-        GameObject plate = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject plate = CreatePrimSafe(PrimitiveType.Cube);
         plate.transform.parent = obj.transform;
         plate.transform.localPosition = new Vector3(0f, -2f, 0f);
         plate.transform.localScale = new Vector3(6f, 0.1f, 10f);
@@ -458,7 +469,7 @@ public class ProjectBuilder
         tag.isTrap = true;
 
         // 红色警示区域
-        GameObject zone = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject zone = CreatePrimSafe(PrimitiveType.Cube);
         zone.transform.parent = obj.transform;
         zone.transform.localPosition = new Vector3(0f, 1f, 0f);
         zone.transform.localScale = new Vector3(2.5f, 3f, 3f);
@@ -480,7 +491,7 @@ public class ProjectBuilder
     {
         GameObject obj = new GameObject("Coin");
 
-        GameObject coin = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        GameObject coin = CreatePrimSafe(PrimitiveType.Sphere);
         coin.transform.parent = obj.transform;
         coin.transform.localPosition = Vector3.zero;
         coin.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
@@ -504,7 +515,7 @@ public class ProjectBuilder
     {
         GameObject obj = new GameObject("DoubleScore");
 
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject cube = CreatePrimSafe(PrimitiveType.Cube);
         cube.transform.parent = obj.transform;
         cube.transform.localPosition = Vector3.zero;
         cube.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
@@ -529,7 +540,7 @@ public class ProjectBuilder
         GameObject obj = new GameObject("Train");
 
         // 车头
-        GameObject head = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject head = CreatePrimSafe(PrimitiveType.Cube);
         head.name = "TrainHead";
         head.transform.parent = obj.transform;
         head.transform.localPosition = new Vector3(0f, 2f, 3f);
@@ -544,7 +555,7 @@ public class ProjectBuilder
         // 车身
         for (int i = 0; i < 3; i++)
         {
-            GameObject car = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject car = CreatePrimSafe(PrimitiveType.Cube);
             car.name = "TrainCar_" + i;
             car.transform.parent = obj.transform;
             car.transform.localPosition = new Vector3(0f, 2f, -1f - i * 3f);
