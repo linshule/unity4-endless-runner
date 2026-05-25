@@ -10,8 +10,8 @@ public class CoinSpawner : MonoBehaviour
     public float spawnInterval = 3f;
     public float spawnDistanceMin = 30f;
     public float spawnDistanceMax = 70f;
-    public float floatCoinHeight = 2.5f; // 浮空金币高度
-    public float floatCoinChance = 0.3f;  // 浮空概率
+    public float floatCoinHeight = 5f; // 浮空金币高度
+    public float floatCoinChance = 0.35f;  // 浮空概率
 
     private float nextSpawnZ;
     private List<GameObject> coinPool = new List<GameObject>();
@@ -56,7 +56,7 @@ public class CoinSpawner : MonoBehaviour
         // 黄色旋转 Sphere
         GameObject coin = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         coin.name = "Coin";
-        coin.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+        coin.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
 
         Renderer renderer = coin.GetComponent<Renderer>();
         if (renderer != null)
@@ -91,14 +91,21 @@ public class CoinSpawner : MonoBehaviour
             float x = (lane - 1) * 6f;
             float z = startZ + i * 2f;
 
-            // 随机浮空或地面
-            float y = 1f;
-            if (Random.value < floatCoinChance)
-            {
-                y = floatCoinHeight;
-            }
+            // 随机浮空或地面，浮空金币颜色更亮
+            bool isFloating = (Random.value < floatCoinChance);
+            float y = isFloating ? floatCoinHeight : 1f;
 
             coin.transform.position = new Vector3(x, y, z);
+
+            // 浮空金币亮金色，地面金币深金色
+            Renderer cr = coin.GetComponent<Renderer>();
+            if (cr != null)
+            {
+                cr.material.color = isFloating 
+                    ? new Color(1f, 0.9f, 0.3f)   // 亮金（空中）
+                    : new Color(1f, 0.7f, 0.1f);  // 深金（地面）
+            }
+
             coin.SetActive(true);
         }
     }

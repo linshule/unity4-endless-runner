@@ -475,7 +475,7 @@ public class ProjectBuilder
         GameObject coin = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         coin.transform.parent = obj.transform;
         coin.transform.localPosition = Vector3.zero;
-        coin.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+        coin.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
 
         Renderer r = coin.GetComponent<Renderer>();
         if (r != null) r.material.color = new Color(1f, 0.85f, 0.1f);
