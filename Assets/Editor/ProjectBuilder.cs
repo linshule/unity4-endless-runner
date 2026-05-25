@@ -5,6 +5,17 @@ using System.Collections.Generic;
 
 public class ProjectBuilder
 {
+    // === 安全着色（避免 Edit Mode 材质泄露） ===
+    static void SetCubeColor(GameObject cube, Color color)
+    {
+        Renderer r = cube.GetComponent<Renderer>();
+        if (r != null)
+        {
+            Material mat = new Material(Shader.Find("Diffuse"));
+            mat.color = color;
+            r.sharedMaterial = mat;
+        }
+    }
     // ============================================================
     // 菜单入口
     // ============================================================
@@ -150,7 +161,7 @@ public class ProjectBuilder
             Renderer renderer = track.GetComponent<Renderer>();
             if (renderer != null)
             {
-                renderer.material.color = laneColors[i];
+                SetCubeColor(track, laneColors[i]);
             }
 
             // 确保有碰撞体
@@ -233,7 +244,7 @@ public class ProjectBuilder
         if (bodyCol != null) bodyCol.enabled = false;
 
         Renderer bodyRenderer = body.GetComponent<Renderer>();
-        if (bodyRenderer != null) bodyRenderer.material.color = Color.white;
+        if (bodyRenderer != null) SetCubeColor(body, Color.white);
 
         // 玩家视觉：Sphere 头部
         GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -246,7 +257,7 @@ public class ProjectBuilder
         if (headCol != null) headCol.enabled = false;
 
         Renderer headRenderer = head.GetComponent<Renderer>();
-        if (headRenderer != null) headRenderer.material.color = Color.white;
+        if (headRenderer != null) SetCubeColor(head, Color.white);
 
         // === 6. 保存场景 ===
         string scenePath = "Assets/Scenes/Game.unity";
@@ -321,7 +332,7 @@ public class ProjectBuilder
         cube.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 
         Renderer r = cube.GetComponent<Renderer>();
-        if (r != null) r.material.color = new Color(0.25f, 0.25f, 0.25f);
+        SetCubeColor(cube, new Color(0.25f, 0.25f, 0.25f));
 
         Collider col = cube.GetComponent<Collider>();
         if (col != null)
@@ -344,7 +355,7 @@ public class ProjectBuilder
         cube.transform.localScale = new Vector3(6f, 5f, 1f);
 
         Renderer r = cube.GetComponent<Renderer>();
-        if (r != null) r.material.color = new Color(0.6f, 0.15f, 0.15f);
+        SetCubeColor(cube, new Color(0.6f, 0.15f, 0.15f));
 
         Collider col = cube.GetComponent<Collider>();
         if (col != null) col.isTrigger = false;
@@ -369,7 +380,7 @@ public class ProjectBuilder
             spike.transform.localScale = new Vector3(0.2f, 0.6f, 0.2f);
 
             Renderer r = spike.GetComponent<Renderer>();
-            if (r != null) r.material.color = Color.red;
+            if (r != null) SetCubeColor(spike, Color.red);
 
             Collider col = spike.GetComponent<Collider>();
             if (col != null) col.isTrigger = false;
@@ -399,7 +410,7 @@ public class ProjectBuilder
         bar.transform.localScale = new Vector3(6f, 0.5f, 0.5f);
 
         Renderer r = bar.GetComponent<Renderer>();
-        if (r != null) r.material.color = new Color(0.7f, 0.6f, 0.1f);
+        SetCubeColor(bar, new Color(0.7f, 0.6f, 0.1f));
 
         Collider col = bar.GetComponent<Collider>();
         if (col != null) col.isTrigger = false;
@@ -414,7 +425,7 @@ public class ProjectBuilder
         pole.transform.localScale = new Vector3(0.15f, 1.2f, 0.15f);
 
         Renderer pr = pole.GetComponent<Renderer>();
-        if (pr != null) pr.material.color = new Color(0.4f, 0.35f, 0.1f);
+        if (pr != null) SetCubeColor(pole, new Color(0.4f, 0.35f, 0.1f));
 
         CreatePrefabAsset(obj, "Assets/Prefabs/Obstacles/Spinner.prefab");
         GameObject.DestroyImmediate(obj);
@@ -434,7 +445,7 @@ public class ProjectBuilder
         plate.transform.localScale = new Vector3(6f, 0.1f, 10f);
 
         Renderer r = plate.GetComponent<Renderer>();
-        if (r != null) r.material.color = Color.black;
+        if (r != null) SetCubeColor(plate, Color.black);
 
         Collider col = plate.GetComponent<Collider>();
         if (col != null) col.enabled = false;
@@ -456,7 +467,7 @@ public class ProjectBuilder
         zone.transform.localScale = new Vector3(2.5f, 3f, 3f);
 
         Renderer r = zone.GetComponent<Renderer>();
-        if (r != null) r.material.color = new Color(1f, 0.1f, 0.1f);
+        SetCubeColor(zone, new Color(1f, 0.1f, 0.1f));
 
         Collider col = zone.GetComponent<Collider>();
         if (col != null)
@@ -478,7 +489,7 @@ public class ProjectBuilder
         coin.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
 
         Renderer r = coin.GetComponent<Renderer>();
-        if (r != null) r.material.color = new Color(1f, 0.85f, 0.1f);
+        if (r != null) SetCubeColor(coin, new Color(1f, 0.85f, 0.1f));
 
         Collider col = coin.GetComponent<Collider>();
         if (col != null)
@@ -502,7 +513,7 @@ public class ProjectBuilder
         cube.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
 
         Renderer r = cube.GetComponent<Renderer>();
-        if (r != null) r.material.color = Color.yellow;
+        if (r != null) SetCubeColor(cube, Color.yellow);
 
         Collider col = cube.GetComponent<Collider>();
         if (col != null)
@@ -528,7 +539,7 @@ public class ProjectBuilder
         head.transform.localScale = new Vector3(5f, 3f, 3f);
 
         Renderer hr = head.GetComponent<Renderer>();
-        if (hr != null) hr.material.color = new Color(0.5f, 0.1f, 0.1f);
+        if (hr != null) hSetCubeColor(cube, new Color(0.5f, 0.1f, 0.1f));
 
         Collider hc = head.GetComponent<Collider>();
         if (hc != null) hc.isTrigger = false;
@@ -543,7 +554,7 @@ public class ProjectBuilder
             car.transform.localScale = new Vector3(4.5f, 3f, 3.5f);
 
             Renderer cr = car.GetComponent<Renderer>();
-            if (cr != null) cr.material.color = new Color(0.4f, 0.08f, 0.08f);
+            if (cr != null) SetCubeColor(car, new Color(0.4f, 0.08f, 0.08f));
 
             Collider cc = car.GetComponent<Collider>();
             if (cc != null) cc.isTrigger = false;
