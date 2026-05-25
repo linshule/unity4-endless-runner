@@ -15,8 +15,8 @@ public class PlayerController : MonoBehaviour
     public float maxSpeed = 25f;
 
     // === 跳跃参数 ===
-    public float jumpHeight = 7f;
-    public float gravity = 20f;
+    public float jumpHeight = 14f;
+    public float gravity = 15f;
     private float verticalVelocity = 0f;
     private bool isGrounded = true;
 
