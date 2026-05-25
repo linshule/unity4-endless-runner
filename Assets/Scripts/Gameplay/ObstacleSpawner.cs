@@ -308,8 +308,8 @@ public class ObstacleSpawner : MonoBehaviour
             {
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cube.transform.parent = obj.transform;
-                cube.transform.localPosition = new Vector3(0f, 1.5f, 0f);
-                cube.transform.localScale = new Vector3(3f, 3f, 0.5f);
+                cube.transform.localPosition = new Vector3(0f, 0.75f, 0f);
+                cube.transform.localScale = new Vector3(1.5f, 1.5f, 0.3f);
                 cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.15f, 0.15f);
                 tag.isTrap = false; tag.isDynamic = false;
             }
