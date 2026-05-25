@@ -205,8 +205,6 @@ public class ProjectBuilder
         // AdaptiveDifficulty
         GameObject adObj = CreateScriptObject("AdaptiveDifficulty", typeof(AdaptiveDifficulty));
 
-        // BackgroundScroller
-        GameObject bsObj = CreateScriptObject("BackgroundScroller", typeof(BackgroundScroller));
 
         // === 5. 玩家 ===
         GameObject playerObj = new GameObject("Player");
