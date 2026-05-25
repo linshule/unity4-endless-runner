@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -119,10 +119,15 @@ public class ObstacleSpawner : MonoBehaviour
                 prefab = staticObstaclePrefabs[Random.Range(0, staticObstaclePrefabs.Length)];
             }
 
+            Vector3 pos = new Vector3(laneX, 1.5f, spawnZ);
             if (prefab != null)
             {
-                Vector3 pos = new Vector3(laneX, 1.5f, spawnZ);
                 CreateObstacle(prefab, pos);
+            }
+            else
+            {
+                // 无预制体时程序化生成
+                CreateObstacleGeometry(type, pos);
             }
         }
     }
@@ -255,5 +260,98 @@ public class ObstacleSpawner : MonoBehaviour
         spawnIntervalMax = 4f - (difficultyLevel * 0.15f);
         if (spawnIntervalMin < 0.5f) spawnIntervalMin = 0.5f;
         if (spawnIntervalMax < 1f) spawnIntervalMax = 1f;
+    }
+
+    // === 程序化几何体创建（无预制体时的兜底） ===
+    GameObject CreateObstacleGeometry(int type, Vector3 position)
+    {
+        GameObject obj = GetPooledObject();
+        if (obj == null)
+        {
+            obj = new GameObject("Obstacle_Fallback");
+        }
+        else
+        {
+            foreach (Transform child in obj.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
+
+        obj.transform.position = position;
+        obj.transform.rotation = Quaternion.identity;
+
+        ObstacleTag tag = obj.GetComponent<ObstacleTag>();
+        if (tag == null) tag = obj.AddComponent<ObstacleTag>();
+
+        if (type == 0) // 静态障碍
+        {
+            int subtype = Random.Range(0, 4);
+            if (subtype == 0) // O01 石块
+            {
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.transform.parent = obj.transform;
+                cube.transform.localPosition = Vector3.zero;
+                cube.transform.localScale = new Vector3(1f, 1f, 1f);
+                cube.GetComponent<Renderer>().material.color = new Color(0.25f, 0.25f, 0.25f);
+                tag.isTrap = false; tag.isDynamic = false;
+            }
+            else if (subtype == 1) // O02 墙体
+            {
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.transform.parent = obj.transform;
+                cube.transform.localPosition = new Vector3(0f, 1.5f, 0f);
+                cube.transform.localScale = new Vector3(3f, 3f, 0.5f);
+                cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.15f, 0.15f);
+                tag.isTrap = false; tag.isDynamic = false;
+            }
+            else if (subtype == 2) // O03 尖刺
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    GameObject spike = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                    spike.transform.parent = obj.transform;
+                    spike.transform.localPosition = new Vector3((i - 1) * 0.5f, 0.3f, 0f);
+                    spike.transform.localScale = new Vector3(0.2f, 0.6f, 0.2f);
+                    spike.GetComponent<Renderer>().material.color = Color.red;
+                }
+                tag.isTrap = false; tag.isDynamic = false;
+            }
+            else // O04 断台
+            {
+                tag.isTrap = true; tag.isDynamic = false;
+            }
+        }
+        else if (type == 1) // O05 旋转机关
+        {
+            GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bar.transform.parent = obj.transform;
+            bar.transform.localPosition = new Vector3(0f, 1.2f, 0f);
+            bar.transform.localScale = new Vector3(4f, 0.3f, 0.3f);
+            bar.GetComponent<Renderer>().material.color = new Color(0.7f, 0.6f, 0.1f);
+            tag.isDynamic = true; tag.isTrap = false;
+        }
+        else if (type == 2) // 陷阱
+        {
+            int subtype = Random.Range(0, 2);
+            if (subtype == 0) // O08 深坑
+            {
+                tag.isTrap = true; tag.isDynamic = false;
+            }
+            else // O09 即死区域
+            {
+                GameObject zone = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                zone.transform.parent = obj.transform;
+                zone.transform.localPosition = new Vector3(0f, 1f, 0f);
+                zone.transform.localScale = new Vector3(1.5f, 2f, 2f);
+                zone.GetComponent<Renderer>().material.color = new Color(1f, 0.1f, 0.1f);
+                Collider col = zone.GetComponent<Collider>();
+                if (col != null) col.isTrigger = true;
+                tag.isTrap = true; tag.isDynamic = false;
+            }
+        }
+
+        obj.SetActive(true);
+        return obj;
     }
 }
