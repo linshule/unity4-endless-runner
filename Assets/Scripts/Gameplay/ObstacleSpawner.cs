@@ -4,40 +4,31 @@ using System.Collections.Generic;
 
 public class ObstacleSpawner : MonoBehaviour
 {
-    // === 对象池 ===
     private List<GameObject> obstaclePool = new List<GameObject>();
-    public int poolSize = 20;
+    public int poolSize = 30;
 
-    // === 生成参数 ===
     public float spawnDistanceMin = 60f;
     public float spawnDistanceMax = 120f;
     public float spawnIntervalMin = 3f;
     public float spawnIntervalMax = 6f;
     private float nextSpawnZ;
 
-    // === 玩家引用 ===
     public PlayerController player;
 
-    // === 预制体引用 ===
-    public GameObject[] staticObstaclePrefabs;  // O01~O04
-    public GameObject dynamicObstaclePrefab;     // O05
-    public GameObject[] trapPrefabs;             // O08~O09
+    public GameObject[] staticObstaclePrefabs;
+    public GameObject dynamicObstaclePrefab;
+    public GameObject[] trapPrefabs;
 
-    // === 难度控制 ===
     public int difficultyLevel = 1;
     public bool dynamicUnlocked = false;
     public bool trapsUnlocked = false;
 
-    // === 回收距离 ===
-    public float recycleDistance = 20f;
+    public float recycleDistance = 25f;
 
     void Start()
     {
         if (player == null)
-        {
             player = FindObjectOfType<PlayerController>();
-        }
-
         nextSpawnZ = player.transform.position.z + spawnDistanceMin;
         InitializePool();
     }
@@ -47,10 +38,8 @@ public class ObstacleSpawner : MonoBehaviour
         if (player == null || player.isDead) return;
         if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
-        // 回收后方障碍物
         RecycleObstacles();
 
-        // 检查是否需要生成
         float playerZ = player.transform.position.z;
         if (playerZ + spawnDistanceMax > nextSpawnZ)
         {
@@ -72,11 +61,8 @@ public class ObstacleSpawner : MonoBehaviour
 
     void SpawnObstacleSet()
     {
-        // 根据难度选择障碍物类型
         int type = SelectObstacleType();
-
-        // 最多占 2 条轨道，始终保证至少 1 条可通行
-        int lanesToBlock = Random.Range(1, 3); // 1~2 条
+        int lanesToBlock = Random.Range(1, 3);
         List<int> availableLanes = new List<int>() { 0, 1, 2 };
         List<int> blockedLanes = new List<int>();
 
@@ -88,62 +74,42 @@ public class ObstacleSpawner : MonoBehaviour
             availableLanes.RemoveAt(idx);
         }
 
-        // 在每条被阻塞的轨道上生成障碍物
         float spawnZ = player.transform.position.z + Random.Range(spawnDistanceMin, spawnDistanceMax);
 
         foreach (int lane in blockedLanes)
         {
-            float laneX = (lane - 1) * 6f; // -6, 0, 6
+            float laneX = (lane - 1) * 6f;
 
             GameObject prefab = null;
             if (type == 0 && staticObstaclePrefabs != null && staticObstaclePrefabs.Length > 0)
-            {
                 prefab = staticObstaclePrefabs[Random.Range(0, staticObstaclePrefabs.Length)];
-            }
             else if (type == 1 && dynamicUnlocked && dynamicObstaclePrefab != null)
-            {
                 prefab = dynamicObstaclePrefab;
-            }
             else if (type == 2 && trapsUnlocked && trapPrefabs != null && trapPrefabs.Length > 0)
-            {
                 prefab = trapPrefabs[Random.Range(0, trapPrefabs.Length)];
-            }
 
             if (prefab == null && staticObstaclePrefabs != null && staticObstaclePrefabs.Length > 0)
-            {
                 prefab = staticObstaclePrefabs[Random.Range(0, staticObstaclePrefabs.Length)];
-            }
 
             Vector3 pos = new Vector3(laneX, 1.5f, spawnZ);
             if (prefab != null)
-            {
                 CreateObstacle(prefab, pos);
-            }
             else
-            {
-                // 无预制体时程序化生成
                 CreateObstacleGeometry(type, pos);
-            }
         }
     }
 
     int SelectObstacleType()
     {
-        // 根据难度等级解锁
-        if (difficultyLevel >= 7 && trapsUnlocked && Random.value < 0.2f)
-        {
-            return 2; // 陷阱
-        }
-        if (difficultyLevel >= 4 && dynamicUnlocked && Random.value < 0.35f)
-        {
-            return 1; // 动态
-        }
-        return 0; // 静态
+        if (difficultyLevel >= 7 && trapsUnlocked && Random.value < 0.15f)
+            return 2;
+        if (difficultyLevel >= 4 && dynamicUnlocked && Random.value < 0.3f)
+            return 1;
+        return 0;
     }
 
     GameObject CreateObstacle(GameObject prefab, Vector3 position)
     {
-        // 从对象池获取或实例化
         GameObject obj = GetPooledObject();
         if (obj == null)
         {
@@ -151,15 +117,12 @@ public class ObstacleSpawner : MonoBehaviour
         }
         else
         {
-            // 清除旧的子对象
             foreach (Transform child in obj.transform)
-            {
                 GameObject.Destroy(child.gameObject);
-            }
+
             obj.transform.position = position;
             obj.transform.rotation = Quaternion.identity;
 
-            // 复制预制体的几何体
             foreach (Transform child in prefab.transform)
             {
                 GameObject copy = (GameObject)GameObject.Instantiate(child.gameObject);
@@ -169,7 +132,6 @@ public class ObstacleSpawner : MonoBehaviour
                 copy.transform.localScale = child.localScale;
             }
 
-            // 复制碰撞体
             Collider prefabCol = prefab.GetComponent<Collider>();
             if (prefabCol != null)
             {
@@ -205,7 +167,6 @@ public class ObstacleSpawner : MonoBehaviour
                 }
             }
 
-            // 复制 Obstacle 标签
             ObstacleTag prefabTag = prefab.GetComponent<ObstacleTag>();
             if (prefabTag != null)
             {
@@ -213,6 +174,125 @@ public class ObstacleSpawner : MonoBehaviour
                 if (objTag == null) objTag = obj.AddComponent<ObstacleTag>();
                 objTag.isTrap = prefabTag.isTrap;
                 objTag.isDynamic = prefabTag.isDynamic;
+            }
+        }
+
+        obj.SetActive(true);
+
+        // 特殊处理：断台(Gap)需要碰撞体让玩家碰撞检测生效
+        ObstacleTag tag = obj.GetComponent<ObstacleTag>();
+        if (tag != null && tag.isTrap && !tag.isDynamic)
+        {
+            Collider col = obj.GetComponent<Collider>();
+            if (col == null)
+            {
+                BoxCollider bc = obj.AddComponent<BoxCollider>();
+                bc.size = new Vector3(5f, 0.5f, 2f);
+                bc.center = new Vector3(0f, -0.5f, 0f);
+                bc.isTrigger = false;
+            }
+        }
+
+        return obj;
+    }
+
+    GameObject CreateObstacleGeometry(int type, Vector3 position)
+    {
+        GameObject obj = GetPooledObject();
+        if (obj == null)
+        {
+            obj = new GameObject("Obstacle_Fallback");
+        }
+        else
+        {
+            foreach (Transform child in obj.transform)
+                GameObject.Destroy(child.gameObject);
+        }
+
+        obj.transform.position = position;
+        obj.transform.rotation = Quaternion.identity;
+
+        ObstacleTag tag = obj.GetComponent<ObstacleTag>();
+        if (tag == null) tag = obj.AddComponent<ObstacleTag>();
+
+        if (type == 0)
+        {
+            float roll = Random.value;
+            int subtype;
+            if (roll < 0.4f) subtype = 0;
+            else if (roll < 0.5f) subtype = 1;
+            else if (roll < 0.8f) subtype = 2;
+            else subtype = 3;
+
+            if (subtype == 0)
+            {
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.transform.parent = obj.transform;
+                cube.transform.localPosition = Vector3.zero;
+                cube.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                cube.GetComponent<Renderer>().material.color = new Color(0.25f, 0.25f, 0.25f);
+                tag.isTrap = false; tag.isDynamic = false;
+            }
+            else if (subtype == 1)
+            {
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.transform.parent = obj.transform;
+                cube.transform.localPosition = new Vector3(0f, 0.75f, 0f);
+                cube.transform.localScale = new Vector3(1.5f, 1.5f, 0.3f);
+                cube.GetComponent<Renderer>().material.color = new Color(0.5f, 0.1f, 0.1f);
+                tag.isTrap = false; tag.isDynamic = false;
+            }
+            else if (subtype == 2)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    GameObject spike = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                    spike.transform.parent = obj.transform;
+                    spike.transform.localPosition = new Vector3((i - 1) * 0.5f, 0.3f, 0f);
+                    spike.transform.localScale = new Vector3(0.2f, 0.6f, 0.2f);
+                    spike.GetComponent<Renderer>().material.color = Color.red;
+                }
+                tag.isTrap = false; tag.isDynamic = false;
+            }
+            else
+            {
+                // Gap: 添加实际碰撞体
+                tag.isTrap = true; tag.isDynamic = false;
+                BoxCollider bc = obj.AddComponent<BoxCollider>();
+                bc.size = new Vector3(5f, 0.5f, 2f);
+                bc.center = new Vector3(0f, -0.5f, 0f);
+            }
+        }
+        else if (type == 1)
+        {
+            GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bar.transform.parent = obj.transform;
+            bar.transform.localPosition = new Vector3(0f, 1.2f, 0f);
+            bar.transform.localScale = new Vector3(6f, 0.5f, 0.5f);
+            bar.GetComponent<Renderer>().material.color = new Color(0.7f, 0.6f, 0.1f);
+            tag.isDynamic = true; tag.isTrap = false;
+        }
+        else if (type == 2)
+        {
+            int subtype = Random.Range(0, 2);
+            if (subtype == 0)
+            {
+                // Pit: 碰撞体
+                tag.isTrap = true; tag.isDynamic = false;
+                BoxCollider bc = obj.AddComponent<BoxCollider>();
+                bc.size = new Vector3(6f, 0.3f, 4f);
+                bc.center = new Vector3(0f, -0.5f, 0f);
+            }
+            else
+            {
+                GameObject zone = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                zone.transform.parent = obj.transform;
+                zone.transform.localPosition = new Vector3(0f, 1f, 0f);
+                zone.transform.localScale = new Vector3(1.5f, 2f, 2f);
+                zone.GetComponent<Renderer>().material.color = new Color(0.8f, 0.2f, 0.2f, 0.6f);
+                Collider col = zone.GetComponent<Collider>();
+                if (col != null) col.isTrigger = true;
+                tag.isTrap = true; tag.isDynamic = false;
             }
         }
 
@@ -225,9 +305,7 @@ public class ObstacleSpawner : MonoBehaviour
         foreach (GameObject obj in obstaclePool)
         {
             if (!obj.activeInHierarchy)
-            {
                 return obj;
-            }
         }
         return null;
     }
@@ -238,9 +316,7 @@ public class ObstacleSpawner : MonoBehaviour
         foreach (GameObject obj in obstaclePool)
         {
             if (obj.activeInHierarchy && obj.transform.position.z < playerZ - recycleDistance)
-            {
                 obj.SetActive(false);
-            }
         }
     }
 
@@ -249,111 +325,9 @@ public class ObstacleSpawner : MonoBehaviour
         difficultyLevel = Mathf.Clamp(level, 1, 10);
         dynamicUnlocked = (difficultyLevel >= 4);
         trapsUnlocked = (difficultyLevel >= 7);
-
-        // 调整生成频率
         spawnIntervalMin = 4f - (difficultyLevel * 0.15f);
         spawnIntervalMax = 7f - (difficultyLevel * 0.2f);
-        if (spawnIntervalMin < 0.5f) spawnIntervalMin = 0.5f;
-        if (spawnIntervalMax < 1f) spawnIntervalMax = 1f;
-    }
-
-    // === 程序化几何体创建（无预制体时的兜底） ===
-    GameObject CreateObstacleGeometry(int type, Vector3 position)
-    {
-        GameObject obj = GetPooledObject();
-        if (obj == null)
-        {
-            obj = new GameObject("Obstacle_Fallback");
-        }
-        else
-        {
-            foreach (Transform child in obj.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
-        }
-
-        obj.transform.position = position;
-        obj.transform.rotation = Quaternion.identity;
-
-        ObstacleTag tag = obj.GetComponent<ObstacleTag>();
-        if (tag == null) tag = obj.AddComponent<ObstacleTag>();
-
-        if (type == 0) // 静态障碍
-        {
-            // 加权随机：石块40% 墙体10% 尖刺30% 断台20%
-            float roll = Random.value;
-            int subtype;
-            if (roll < 0.4f) subtype = 0;       // 石块
-            else if (roll < 0.5f) subtype = 1;  // 墙体（仅10%）
-            else if (roll < 0.8f) subtype = 2;  // 尖刺
-            else subtype = 3;                    // 断台
-
-            if (subtype == 0) // O01 石块
-            {
-                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                cube.transform.parent = obj.transform;
-                cube.transform.localPosition = Vector3.zero;
-                cube.transform.localScale = new Vector3(1f, 1f, 1f);
-                cube.GetComponent<Renderer>().material.color = new Color(0.25f, 0.25f, 0.25f);
-                tag.isTrap = false; tag.isDynamic = false;
-            }
-            else if (subtype == 1) // O02 墙体
-            {
-                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                cube.transform.parent = obj.transform;
-                cube.transform.localPosition = new Vector3(0f, 0.75f, 0f);
-                cube.transform.localScale = new Vector3(1.5f, 1.5f, 0.3f);
-                cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.15f, 0.15f);
-                tag.isTrap = false; tag.isDynamic = false;
-            }
-            else if (subtype == 2) // O03 尖刺
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    GameObject spike = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                    spike.transform.parent = obj.transform;
-                    spike.transform.localPosition = new Vector3((i - 1) * 0.5f, 0.3f, 0f);
-                    spike.transform.localScale = new Vector3(0.2f, 0.6f, 0.2f);
-                    spike.GetComponent<Renderer>().material.color = Color.red;
-                }
-                tag.isTrap = false; tag.isDynamic = false;
-            }
-            else // O04 断台
-            {
-                tag.isTrap = true; tag.isDynamic = false;
-            }
-        }
-        else if (type == 1) // O05 旋转机关
-        {
-            GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            bar.transform.parent = obj.transform;
-            bar.transform.localPosition = new Vector3(0f, 1.2f, 0f);
-            bar.transform.localScale = new Vector3(4f, 0.3f, 0.3f);
-            bar.GetComponent<Renderer>().material.color = new Color(0.7f, 0.6f, 0.1f);
-            tag.isDynamic = true; tag.isTrap = false;
-        }
-        else if (type == 2) // 陷阱
-        {
-            int subtype = Random.Range(0, 2);
-            if (subtype == 0) // O08 深坑
-            {
-                tag.isTrap = true; tag.isDynamic = false;
-            }
-            else // O09 即死区域
-            {
-                GameObject zone = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                zone.transform.parent = obj.transform;
-                zone.transform.localPosition = new Vector3(0f, 1f, 0f);
-                zone.transform.localScale = new Vector3(1.5f, 2f, 2f);
-                zone.GetComponent<Renderer>().material.color = new Color(1f, 0.1f, 0.1f);
-                Collider col = zone.GetComponent<Collider>();
-                if (col != null) col.isTrigger = true;
-                tag.isTrap = true; tag.isDynamic = false;
-            }
-        }
-
-        obj.SetActive(true);
-        return obj;
+        if (spawnIntervalMin < 0.8f) spawnIntervalMin = 0.8f;
+        if (spawnIntervalMax < 1.5f) spawnIntervalMax = 1.5f;
     }
 }

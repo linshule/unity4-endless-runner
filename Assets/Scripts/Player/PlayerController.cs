@@ -4,9 +4,9 @@ using System.Collections;
 public class PlayerController : MonoBehaviour
 {
     // === 轨道配置 ===
-    public float[] laneX = new float[] { -4f, 0f, 4f };
-    public int currentLane = 1; // 初始在中间轨道
-    public float laneSwitchSpeed = 8f;
+    public float[] laneX = new float[] { -6f, 0f, 6f };
+    public int currentLane = 1;
+    public float laneSwitchSpeed = 12f;
 
     // === 移动参数 ===
     public float baseSpeed = 10f;
@@ -23,16 +23,21 @@ public class PlayerController : MonoBehaviour
     // === 滑铲参数 ===
     public float slideDuration = 0.6f;
     public float slideHeight = 1f;
+    public float slideCooldown = 0.3f;
     private float originalHeight;
     private float originalCenterY;
     private bool isSliding = false;
     private float slideTimer = 0f;
+    private float slideCooldownTimer = 0f;
 
     // === 死亡状态 ===
     public bool isDead = false;
+    private float deathAnimTimer = 0f;
 
     // === 组件引用 ===
     private CharacterController controller;
+    private GameObject bodyObj;
+    private GameObject headObj;
 
     void Start()
     {
@@ -56,11 +61,29 @@ public class PlayerController : MonoBehaviour
         startPos.x = laneX[currentLane];
         if (startPos.y < 1.5f) startPos.y = 1.5f;
         transform.position = startPos;
+
+        // 缓存子对象引用
+        Transform t = transform.Find("PlayerBody");
+        if (t != null) bodyObj = t.gameObject;
+        t = transform.Find("PlayerHead");
+        if (t != null) headObj = t.gameObject;
     }
 
     void Update()
     {
-        if (isDead) return;
+        if (isDead)
+        {
+            // 死亡动画
+            deathAnimTimer += Time.deltaTime;
+            if (deathAnimTimer < 0.5f && bodyObj != null)
+            {
+                float t = deathAnimTimer / 0.5f;
+                bodyObj.transform.localScale = Vector3.Lerp(Vector3.one, new Vector3(1.5f, 0.3f, 1.5f), t);
+                if (headObj != null)
+                    headObj.transform.localPosition = Vector3.Lerp(new Vector3(0f, 1.8f, 0f), new Vector3(0f, 0.5f, 2f), t);
+            }
+            return;
+        }
 
         GameManager gm = GameManager.Instance;
         if (gm == null || gm.state != GameState.Playing) return;
@@ -78,37 +101,36 @@ public class PlayerController : MonoBehaviour
 
         // 移动
         Vector3 move = Vector3.zero;
-
-        // 前向移动
         move.z = currentSpeed * Time.deltaTime;
 
-        // 横向移动（变道）
         float targetX = laneX[currentLane];
         float newX = Mathf.Lerp(transform.position.x, targetX, laneSwitchSpeed * Time.deltaTime);
         move.x = newX - transform.position.x;
 
-        // 纵向移动（跳跃/重力）
         if (!isGrounded)
         {
             verticalVelocity -= gravity * Time.deltaTime;
         }
         else
         {
-            verticalVelocity = -1f; // 保持贴地
+            verticalVelocity = -1f;
         }
         move.y = verticalVelocity * Time.deltaTime;
 
-        // 执行移动
         controller.Move(move);
-
-        // 接地检测（CharacterController 的 isGrounded 在 4.x 不可靠，用射线辅助）
         CheckGrounded();
+
+        // 掉落即死检测
+        if (transform.position.y < -5f)
+        {
+            GameManager gm2 = GameManager.Instance;
+            if (gm2 != null) gm2.OnPlayerHitObstacle();
+        }
     }
 
     void HandleLaneSwitch()
     {
-        if (isSliding) return; // 滑铲中不可变道
-
+        // 滑铲中也可以变道（移除限制）
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             if (currentLane > 0) currentLane--;
@@ -134,6 +156,12 @@ public class PlayerController : MonoBehaviour
     {
         if (!isGrounded) return;
 
+        if (slideCooldownTimer > 0f)
+        {
+            slideCooldownTimer -= Time.deltaTime;
+            return;
+        }
+
         if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftControl)) && !isSliding)
         {
             StartSlide();
@@ -153,7 +181,6 @@ public class PlayerController : MonoBehaviour
     {
         isSliding = true;
         slideTimer = slideDuration;
-
         controller.height = slideHeight;
         float newCenterY = originalCenterY - (originalHeight - slideHeight) * 0.5f;
         controller.center = new Vector3(0f, newCenterY, 0f);
@@ -162,47 +189,69 @@ public class PlayerController : MonoBehaviour
     void EndSlide()
     {
         isSliding = false;
+        slideCooldownTimer = slideCooldown;
         controller.height = originalHeight;
         controller.center = new Vector3(0f, originalCenterY, 0f);
     }
 
     void CheckGrounded()
     {
-        // CharacterController.isGrounded 在 4.x 不可靠
-        // 用简单的 Y 坐标判断
         if (!isSliding)
         {
             isGrounded = (transform.position.y <= 1.2f && verticalVelocity <= 0f);
         }
         else
         {
-            float slideGroundY = 1.55f - (originalHeight - slideHeight) * 0.5f;
+            float slideGroundY = 1.2f - (originalHeight - slideHeight) * 0.5f;
             isGrounded = (transform.position.y <= slideGroundY && verticalVelocity <= 0f);
         }
-
-        // 接地时不做位置修正，CharacterController 自行处理
     }
 
     public void Die()
     {
         isDead = true;
         currentSpeed = 0f;
+        deathAnimTimer = 0f;
     }
 
-    // 供 TimeRewind 调用
+    public void Revive()
+    {
+        isDead = false;
+        deathAnimTimer = 0f;
+        // 恢复视觉
+        if (bodyObj != null)
+            bodyObj.transform.localScale = Vector3.one;
+        if (headObj != null)
+            headObj.transform.localPosition = new Vector3(0f, 1.8f, 0f);
+    }
+
     public void SetPosition(Vector3 pos)
     {
         transform.position = pos;
     }
 
-    // 供外部获取速度
     public float GetSpeed()
     {
         return currentSpeed;
     }
 
+    // === 碰撞检测：撞到障碍物即死 ===
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // 碰撞检测在 GameManager 中统一处理
+        if (isDead) return;
+
+        // 检查是否是障碍物
+        ObstacleTag tag = hit.gameObject.GetComponent<ObstacleTag>();
+        if (tag == null && hit.transform.parent != null)
+            tag = hit.transform.parent.GetComponent<ObstacleTag>();
+
+        if (tag != null)
+        {
+            GameManager gm = GameManager.Instance;
+            if (gm != null && gm.state == GameState.Playing)
+            {
+                gm.OnPlayerHitObstacle();
+            }
+        }
     }
 }

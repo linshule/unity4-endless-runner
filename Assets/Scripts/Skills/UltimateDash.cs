@@ -3,11 +3,10 @@ using System.Collections;
 
 public class UltimateDash : MonoBehaviour
 {
-    // S02 虚空冲刺
     public PlayerController player;
     public float dashDistance = 30f;
-    public float dashDuration = 0.5f;
-    
+    public float dashDuration = 0.4f;
+
     private bool isDashing = false;
     private CharacterController controller;
 
@@ -22,8 +21,8 @@ public class UltimateDash : MonoBehaviour
     void Update()
     {
         if (player == null || player.isDead) return;
-        if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
         if (isDashing) return;
+        if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -41,30 +40,45 @@ public class UltimateDash : MonoBehaviour
 
         Vector3 startPos = player.transform.position;
         Vector3 endPos = startPos + Vector3.forward * dashDistance;
-        float elapsed = 0f;
 
-        // 冲刺期间无敌（关闭碰撞检测）
-        if (controller != null)
+        // 冲刺轨迹（临时Cube）
+        GameObject trail = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        trail.name = "DashTrail";
+        trail.transform.position = startPos + Vector3.up * 1f;
+        trail.transform.localScale = new Vector3(0.5f, 1.5f, dashDistance);
+        trail.transform.rotation = Quaternion.identity;
+        Renderer tr = trail.GetComponent<Renderer>();
+        if (tr != null)
         {
-            controller.detectCollisions = false;
+            tr.material.color = new Color(0f, 0.8f, 1f, 0.5f);
         }
+        Collider tc = trail.GetComponent<Collider>();
+        if (tc != null) tc.enabled = false;
 
+        // 关闭碰撞（冲刺无敌）
+        if (controller != null)
+            controller.detectCollisions = false;
+
+        float elapsed = 0f;
         while (elapsed < dashDuration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / dashDuration;
             player.SetPosition(Vector3.Lerp(startPos, endPos, t));
+
+            // 轨迹淡出
+            if (tr != null)
+                tr.material.color = new Color(0f, 0.8f, 1f, 0.5f * (1f - t));
+
             yield return null;
         }
 
         player.SetPosition(endPos);
 
-        // 恢复碰撞
         if (controller != null)
-        {
             controller.detectCollisions = true;
-        }
 
+        GameObject.Destroy(trail, 0.3f);
         isDashing = false;
     }
 }

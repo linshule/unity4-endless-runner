@@ -78,4 +78,9 @@ public class TrainController : MonoBehaviour
     {
         currentDistance -= penaltyApproachRate;
     }
+
+    public void RestoreDistance()
+    {
+        currentDistance = initialDistance * 0.7f;
+    }
 }

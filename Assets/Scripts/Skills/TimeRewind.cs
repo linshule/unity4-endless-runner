@@ -1,14 +1,13 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 public class TimeRewind : MonoBehaviour
 {
-    // S01 时间回溯
     public PlayerController player;
     public GameManager gameManager;
 
-    // === 快照记录 ===
+    // === 快照 ===
     private struct Snapshot
     {
         public Vector3 position;
@@ -20,9 +19,8 @@ public class TimeRewind : MonoBehaviour
     private float recordTimer = 0f;
 
     // === 回溯参数 ===
-    public float rewindDuration = 1f;
+    public float rewindDuration = 0.8f;
 
-    // === 死亡回溯 ===
     private bool canRewind = false;
     private bool isRewinding = false;
 
@@ -38,8 +36,8 @@ public class TimeRewind : MonoBehaviour
     {
         if (player == null) return;
 
-        // 持续记录位置快照
-        if (!player.isDead && !isRewinding)
+        // 记录快照
+        if (!player.isDead && !isRewinding && gameManager != null && gameManager.state == GameState.Playing)
         {
             recordTimer += Time.deltaTime;
             if (recordTimer >= recordInterval)
@@ -50,21 +48,18 @@ public class TimeRewind : MonoBehaviour
                 snap.time = Time.time;
                 snapshots.Add(snap);
 
-                // 移除过期快照
                 while (snapshots.Count > 0 && Time.time - snapshots[0].time > recordDuration)
-                {
                     snapshots.RemoveAt(0);
-                }
             }
         }
 
         // 死亡时检查回溯
         if (player.isDead && canRewind && !isRewinding)
         {
-            // 通知 HUD 显示回溯按钮
-            if (HUDController.Instance != null)
+            // 空格触发回溯
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                HUDController.Instance.ShowRewindButton(true);
+                TriggerRewind();
             }
         }
     }
@@ -80,18 +75,9 @@ public class TimeRewind : MonoBehaviour
         isRewinding = true;
         canRewind = false;
 
-        // 通知 GameManager
-        if (gameManager != null)
-        {
-            gameManager.TriggerRewind();
-        }
+        gameManager.TriggerRewind();
 
-        if (HUDController.Instance != null)
-        {
-            HUDController.Instance.ShowRewindButton(false);
-        }
-
-        // 找到 2 秒前的快照
+        // 找 2 秒前快照
         float targetTime = Time.time - 2f;
         Snapshot targetSnap = snapshots[0];
         for (int i = snapshots.Count - 1; i >= 0; i--)
@@ -103,14 +89,14 @@ public class TimeRewind : MonoBehaviour
             }
         }
 
-        // 黑白倒放效果（简化：直接回到目标位置）
+        // 黑白倒放
         Vector3 startPos = player.transform.position;
         Vector3 endPos = targetSnap.position;
         float elapsed = 0f;
 
         while (elapsed < rewindDuration)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             float t = elapsed / rewindDuration;
             player.SetPosition(Vector3.Lerp(startPos, endPos, t));
             yield return null;
@@ -118,7 +104,6 @@ public class TimeRewind : MonoBehaviour
 
         player.SetPosition(endPos);
         isRewinding = false;
-        canRewind = false;
     }
 
     public void OnRewindUnlocked()

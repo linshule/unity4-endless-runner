@@ -1,13 +1,9 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine;
 
 public class HUDController : MonoBehaviour
 {
     public static HUDController Instance;
     public GameManager gameManager;
-
-    // === HUD 状态 ===
-    private bool showRewindButton = false;
 
     void Awake()
     {
@@ -20,75 +16,16 @@ public class HUDController : MonoBehaviour
             gameManager = GameManager.Instance;
     }
 
-    void Update()
-    {
-        // 死亡回溯按钮（空格键触发）
-        if (showRewindButton && Input.GetKeyDown(KeyCode.Space))
-        {
-            TimeRewind rewind = FindObjectOfType<TimeRewind>();
-            if (rewind != null)
-            {
-                rewind.TriggerRewind();
-            }
-        }
-    }
+    public void OnPlayerDead() { }
+    public void OnGameOver() { }
+    public void OnCoinCollected() { }
+    public void OnRewindUnlocked() { }
+    public void OnDoubleScoreActivated(float duration) { }
+    public void OnDoubleScoreDeactivated() { }
 
-    // === 回调接口 ===
-    public void OnPlayerDead()
-    {
-        // GameManager 处理
-    }
-
-    public void OnGameOver()
-    {
-        // 结算显示
-        Screen.lockCursor = false;
-        Screen.showCursor = true;
-    }
-
-    public void OnCoinCollected()
-    {
-        // 金币增加反馈
-    }
-
-    public void OnRewindUnlocked()
-    {
-        // 回溯解锁通知
-    }
-
-    public void OnDoubleScoreActivated(float duration)
-    {
-        // 双倍分数激活
-    }
-
-    public void OnDoubleScoreDeactivated()
-    {
-        // 双倍分数结束
-    }
-
-    public void ShowRewindButton(bool show)
-    {
-        showRewindButton = show;
-    }
-
-    // === HUD 数据查询 ===
-    public float GetScore()
-    {
-        if (gameManager != null) return gameManager.score;
-        return 0f;
-    }
-
-    public int GetCoins()
-    {
-        if (gameManager != null) return gameManager.coinCount;
-        return 0;
-    }
-
-    public int GetHighScore()
-    {
-        if (gameManager != null) return gameManager.highScore;
-        return 0;
-    }
+    public float GetScore() { return gameManager != null ? gameManager.score : 0f; }
+    public int GetCoins() { return gameManager != null ? gameManager.coinCount : 0; }
+    public int GetHighScore() { return gameManager != null ? gameManager.highScore : 0; }
 
     public float GetTrainDistance()
     {

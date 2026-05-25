@@ -14,25 +14,28 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    // === 游戏状态 ===
     public GameState state = GameState.Menu;
     public PlayerController player;
 
-    // === 分数系统 ===
+    // === 分数 ===
     public float score = 0f;
     public float scoreMultiplier = 1f;
     public int coinCount = 0;
     public int highScore = 0;
     public int totalCoins = 0;
 
-    // === 速度控制 ===
+    // === 速度曲线 ===
     public AnimationCurve speedCurve;
     public float gameTime = 0f;
 
-    // === 回溯解锁 ===
+    // === 回溯 ===
     public bool rewindUnlocked = false;
     public int rewindUnlockScore = 1500;
     public bool rewindUsed = false;
+
+    // === 死亡闪红 ===
+    private float deathFlashTimer = 0f;
+    public float deathFlashDuration = 0.3f;
 
     void Awake()
     {
@@ -65,34 +68,31 @@ public class GameManager : MonoBehaviour
         {
             gameTime += Time.deltaTime;
 
-            // 距离分数
             if (player != null && !player.isDead)
             {
                 score += player.GetSpeed() * scoreMultiplier * Time.deltaTime;
 
-                // 检查回溯解锁
                 if (!rewindUnlocked && score >= rewindUnlockScore)
                 {
                     rewindUnlocked = true;
                     if (HUDController.Instance != null)
-                    {
                         HUDController.Instance.OnRewindUnlocked();
-                    }
                 }
             }
 
-            // 暂停
             if (Input.GetKeyDown(KeyCode.Escape))
-            {
                 PauseGame();
-            }
+        }
+        else if (state == GameState.Dead)
+        {
+            // 闪红效果计时
+            if (deathFlashTimer > 0f)
+                deathFlashTimer -= Time.unscaledDeltaTime;
         }
         else if (state == GameState.Paused)
         {
             if (Input.GetKeyDown(KeyCode.Escape))
-            {
                 ResumeGame();
-            }
         }
     }
 
@@ -100,15 +100,9 @@ public class GameManager : MonoBehaviour
     {
         if (player == null)
         {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj == null)
-            {
-                playerObj = GameObject.Find("Player");
-            }
-            if (playerObj != null)
-            {
-                player = playerObj.GetComponent<PlayerController>();
-            }
+            GameObject obj = GameObject.FindGameObjectWithTag("Player");
+            if (obj == null) obj = GameObject.Find("Player");
+            if (obj != null) player = obj.GetComponent<PlayerController>();
         }
     }
 
@@ -124,9 +118,11 @@ public class GameManager : MonoBehaviour
         rewindUsed = false;
 
         if (player != null)
-        {
-            player.isDead = false;
-        }
+            player.Revive();
+
+        // 重置自适应难度
+        AdaptiveDifficulty ad = AdaptiveDifficulty.Instance;
+        if (ad != null) ad.ResetForNewGame();
 
         Time.timeScale = 1f;
         Screen.lockCursor = true;
@@ -160,17 +156,13 @@ public class GameManager : MonoBehaviour
         if (state != GameState.Playing) return;
         if (player.isDead) return;
 
-        // 碰撞即死
         player.Die();
         state = GameState.Dead;
+        deathFlashTimer = deathFlashDuration;
 
-        // 通知 HUD
         if (HUDController.Instance != null)
-        {
             HUDController.Instance.OnPlayerDead();
-        }
 
-        // 检查是否可以回溯
         if (rewindUnlocked && !rewindUsed)
         {
             StartCoroutine(WaitForRewindChoice());
@@ -183,22 +175,26 @@ public class GameManager : MonoBehaviour
 
     IEnumerator WaitForRewindChoice()
     {
-        // 显示回溯按钮，等待 3 秒
         float waitTime = 3f;
-        while (waitTime > 0f)
+        while (waitTime > 0f && state == GameState.Dead)
         {
             waitTime -= Time.unscaledDeltaTime;
             yield return null;
         }
-        // 超时自动进入结算
-        StartCoroutine(EndGameDelay(0.5f));
+        if (state == GameState.Dead)
+            StartCoroutine(EndGameDelay(0.5f));
     }
 
     public void TriggerRewind()
     {
         rewindUsed = true;
         state = GameState.Playing;
-        if (player != null) player.isDead = false;
+        if (player != null) player.Revive();
+
+        // 恢复列车距离
+        TrainController train = FindObjectOfType<TrainController>();
+        if (train != null)
+            train.RestoreDistance();
     }
 
     public void OnTrainCaught()
@@ -206,21 +202,26 @@ public class GameManager : MonoBehaviour
         if (state != GameState.Playing) return;
         player.Die();
         state = GameState.Dead;
-        // 列车追上不可回溯
+        deathFlashTimer = deathFlashDuration;
         StartCoroutine(EndGameDelay(1.5f));
     }
 
     IEnumerator EndGameDelay(float delay)
     {
-        yield return new WaitForSeconds(delay);
-        EndGame();
+        float elapsed = 0f;
+        while (elapsed < delay && state == GameState.Dead)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        if (state == GameState.Dead)
+            EndGame();
     }
 
     void EndGame()
     {
         state = GameState.GameOver;
 
-        // 保存最高分
         int intScore = Mathf.FloorToInt(score);
         if (intScore > highScore)
         {
@@ -236,20 +237,18 @@ public class GameManager : MonoBehaviour
         Screen.showCursor = true;
 
         if (HUDController.Instance != null)
-        {
             HUDController.Instance.OnGameOver();
-        }
     }
 
     public void RestartGame()
     {
-        // 重置状态到 Menu，让新场景显示主菜单
         state = GameState.Menu;
         Application.LoadLevel(Application.loadedLevel);
     }
 
     public void LoadMainMenu()
     {
+        state = GameState.Menu;
         Application.LoadLevel("MainMenu");
     }
 
@@ -263,5 +262,11 @@ public class GameManager : MonoBehaviour
     {
         PlayerPrefs.SetInt("HighScore", highScore);
         PlayerPrefs.Save();
+    }
+
+    // 供 UI 画死亡闪红
+    public bool IsDeathFlashing()
+    {
+        return deathFlashTimer > 0f;
     }
 }
