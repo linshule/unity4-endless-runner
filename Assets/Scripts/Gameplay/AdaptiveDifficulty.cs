@@ -75,7 +75,6 @@ public class AdaptiveDifficulty : MonoBehaviour
         if (obstacleSpawner != null)
         {
             baseSpawnDistanceMin = obstacleSpawner.spawnDistanceMin;
-            150f = obstacleSpawner.spawnDistanceMax;
         }
     }
 
