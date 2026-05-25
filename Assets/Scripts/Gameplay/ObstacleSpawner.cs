@@ -5,12 +5,11 @@ using System.Collections.Generic;
 public class ObstacleSpawner : MonoBehaviour
 {
     private List<GameObject> obstaclePool = new List<GameObject>();
-    public int poolSize = 30;
+    public int poolSize = 40;
 
-    public float spawnDistanceMin = 60f;
-    public float spawnDistanceMax = 120f;
-    public float spawnIntervalMin = 3f;
-    public float spawnIntervalMax = 6f;
+    // === 生成参数（大幅拉大间距保证可玩性） ===
+    public float spawnDistanceMin = 80f;
+    public float spawnDistanceMax = 150f;
     private float nextSpawnZ;
 
     public PlayerController player;
@@ -23,13 +22,20 @@ public class ObstacleSpawner : MonoBehaviour
     public bool dynamicUnlocked = false;
     public bool trapsUnlocked = false;
 
-    public float recycleDistance = 25f;
+    public float recycleDistance = 30f;
+
+    // === 新手保护 ===
+    private float safeZoneEnd = 50f;
 
     void Start()
     {
         if (player == null)
             player = FindObjectOfType<PlayerController>();
-        nextSpawnZ = player.transform.position.z + spawnDistanceMin;
+
+        // 第一个障碍物在远方
+        nextSpawnZ = spawnDistanceMin;
+        safeZoneEnd = 50f;
+
         InitializePool();
     }
 
@@ -41,11 +47,15 @@ public class ObstacleSpawner : MonoBehaviour
         RecycleObstacles();
 
         float playerZ = player.transform.position.z;
-        if (playerZ + spawnDistanceMax > nextSpawnZ)
+
+        // 新手保护区
+        if (playerZ < safeZoneEnd) return;
+
+        // 正确逻辑：玩家跑过 nextSpawnZ 才生成下一组
+        if (playerZ > nextSpawnZ)
         {
             SpawnObstacleSet();
-            float interval = Random.Range(spawnIntervalMin, spawnIntervalMax);
-            nextSpawnZ = playerZ + spawnDistanceMin + interval;
+            nextSpawnZ = playerZ + Random.Range(spawnDistanceMin, spawnDistanceMax);
         }
     }
 
@@ -62,7 +72,10 @@ public class ObstacleSpawner : MonoBehaviour
     void SpawnObstacleSet()
     {
         int type = SelectObstacleType();
-        int lanesToBlock = Random.Range(1, 3);
+
+        // 大多数时候只堵 1 条道
+        int lanesToBlock = (Random.value < 0.7f) ? 1 : 2;
+
         List<int> availableLanes = new List<int>() { 0, 1, 2 };
         List<int> blockedLanes = new List<int>();
 
@@ -79,6 +92,7 @@ public class ObstacleSpawner : MonoBehaviour
         foreach (int lane in blockedLanes)
         {
             float laneX = (lane - 1) * 6f;
+            Vector3 pos = new Vector3(laneX, 1.5f, spawnZ);
 
             GameObject prefab = null;
             if (type == 0 && staticObstaclePrefabs != null && staticObstaclePrefabs.Length > 0)
@@ -91,7 +105,6 @@ public class ObstacleSpawner : MonoBehaviour
             if (prefab == null && staticObstaclePrefabs != null && staticObstaclePrefabs.Length > 0)
                 prefab = staticObstaclePrefabs[Random.Range(0, staticObstaclePrefabs.Length)];
 
-            Vector3 pos = new Vector3(laneX, 1.5f, spawnZ);
             if (prefab != null)
                 CreateObstacle(prefab, pos);
             else
@@ -101,9 +114,9 @@ public class ObstacleSpawner : MonoBehaviour
 
     int SelectObstacleType()
     {
-        if (difficultyLevel >= 7 && trapsUnlocked && Random.value < 0.15f)
+        if (difficultyLevel >= 7 && trapsUnlocked && Random.value < 0.12f)
             return 2;
-        if (difficultyLevel >= 4 && dynamicUnlocked && Random.value < 0.3f)
+        if (difficultyLevel >= 4 && dynamicUnlocked && Random.value < 0.25f)
             return 1;
         return 0;
     }
@@ -142,27 +155,20 @@ public class ObstacleSpawner : MonoBehaviour
                     {
                         BoxCollider bc = obj.AddComponent<BoxCollider>();
                         BoxCollider pbc = (BoxCollider)prefabCol;
-                        bc.center = pbc.center;
-                        bc.size = pbc.size;
-                        bc.isTrigger = pbc.isTrigger;
+                        bc.center = pbc.center; bc.size = pbc.size; bc.isTrigger = pbc.isTrigger;
                     }
                     else if (prefabCol is SphereCollider)
                     {
                         SphereCollider sc = obj.AddComponent<SphereCollider>();
                         SphereCollider psc = (SphereCollider)prefabCol;
-                        sc.center = psc.center;
-                        sc.radius = psc.radius;
-                        sc.isTrigger = psc.isTrigger;
+                        sc.center = psc.center; sc.radius = psc.radius; sc.isTrigger = psc.isTrigger;
                     }
                     else if (prefabCol is CapsuleCollider)
                     {
                         CapsuleCollider cc = obj.AddComponent<CapsuleCollider>();
                         CapsuleCollider pcc = (CapsuleCollider)prefabCol;
-                        cc.center = pcc.center;
-                        cc.radius = pcc.radius;
-                        cc.height = pcc.height;
-                        cc.direction = pcc.direction;
-                        cc.isTrigger = pcc.isTrigger;
+                        cc.center = pcc.center; cc.radius = pcc.radius;
+                        cc.height = pcc.height; cc.direction = pcc.direction; cc.isTrigger = pcc.isTrigger;
                     }
                 }
             }
@@ -179,7 +185,6 @@ public class ObstacleSpawner : MonoBehaviour
 
         obj.SetActive(true);
 
-        // 特殊处理：断台(Gap)需要碰撞体让玩家碰撞检测生效
         ObstacleTag tag = obj.GetComponent<ObstacleTag>();
         if (tag != null && tag.isTrap && !tag.isDynamic)
         {
@@ -200,14 +205,10 @@ public class ObstacleSpawner : MonoBehaviour
     {
         GameObject obj = GetPooledObject();
         if (obj == null)
-        {
             obj = new GameObject("Obstacle_Fallback");
-        }
         else
-        {
             foreach (Transform child in obj.transform)
                 GameObject.Destroy(child.gameObject);
-        }
 
         obj.transform.position = position;
         obj.transform.rotation = Quaternion.identity;
@@ -219,10 +220,10 @@ public class ObstacleSpawner : MonoBehaviour
         {
             float roll = Random.value;
             int subtype;
-            if (roll < 0.4f) subtype = 0;
-            else if (roll < 0.5f) subtype = 1;
-            else if (roll < 0.8f) subtype = 2;
-            else subtype = 3;
+            if (roll < 0.45f) subtype = 0;      // 石块 45%
+            else if (roll < 0.55f) subtype = 1; // 墙体 10%
+            else if (roll < 0.80f) subtype = 2; // 尖刺 25%
+            else subtype = 3;                    // 断台 20%
 
             if (subtype == 0)
             {
@@ -256,7 +257,6 @@ public class ObstacleSpawner : MonoBehaviour
             }
             else
             {
-                // Gap: 添加实际碰撞体
                 tag.isTrap = true; tag.isDynamic = false;
                 BoxCollider bc = obj.AddComponent<BoxCollider>();
                 bc.size = new Vector3(5f, 0.5f, 2f);
@@ -266,18 +266,22 @@ public class ObstacleSpawner : MonoBehaviour
         else if (type == 1)
         {
             GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bar.name = "SpinnerBar";
             bar.transform.parent = obj.transform;
             bar.transform.localPosition = new Vector3(0f, 1.2f, 0f);
             bar.transform.localScale = new Vector3(6f, 0.5f, 0.5f);
             bar.GetComponent<Renderer>().material.color = new Color(0.7f, 0.6f, 0.1f);
             tag.isDynamic = true; tag.isTrap = false;
+
+            // 旋转机关需要 DynamicObstacle 组件
+            DynamicObstacle dyn = obj.GetComponent<DynamicObstacle>();
+            if (dyn == null) obj.AddComponent<DynamicObstacle>();
         }
         else if (type == 2)
         {
             int subtype = Random.Range(0, 2);
             if (subtype == 0)
             {
-                // Pit: 碰撞体
                 tag.isTrap = true; tag.isDynamic = false;
                 BoxCollider bc = obj.AddComponent<BoxCollider>();
                 bc.size = new Vector3(6f, 0.3f, 4f);
@@ -289,7 +293,7 @@ public class ObstacleSpawner : MonoBehaviour
                 zone.transform.parent = obj.transform;
                 zone.transform.localPosition = new Vector3(0f, 1f, 0f);
                 zone.transform.localScale = new Vector3(1.5f, 2f, 2f);
-                zone.GetComponent<Renderer>().material.color = new Color(0.8f, 0.2f, 0.2f, 0.6f);
+                zone.GetComponent<Renderer>().material.color = new Color(0.8f, 0.2f, 0.2f);
                 Collider col = zone.GetComponent<Collider>();
                 if (col != null) col.isTrigger = true;
                 tag.isTrap = true; tag.isDynamic = false;
@@ -303,10 +307,7 @@ public class ObstacleSpawner : MonoBehaviour
     GameObject GetPooledObject()
     {
         foreach (GameObject obj in obstaclePool)
-        {
-            if (!obj.activeInHierarchy)
-                return obj;
-        }
+            if (!obj.activeInHierarchy) return obj;
         return null;
     }
 
@@ -314,10 +315,8 @@ public class ObstacleSpawner : MonoBehaviour
     {
         float playerZ = player.transform.position.z;
         foreach (GameObject obj in obstaclePool)
-        {
             if (obj.activeInHierarchy && obj.transform.position.z < playerZ - recycleDistance)
                 obj.SetActive(false);
-        }
     }
 
     public void SetDifficulty(int level)
@@ -325,9 +324,5 @@ public class ObstacleSpawner : MonoBehaviour
         difficultyLevel = Mathf.Clamp(level, 1, 10);
         dynamicUnlocked = (difficultyLevel >= 4);
         trapsUnlocked = (difficultyLevel >= 7);
-        spawnIntervalMin = 4f - (difficultyLevel * 0.15f);
-        spawnIntervalMax = 7f - (difficultyLevel * 0.2f);
-        if (spawnIntervalMin < 0.8f) spawnIntervalMin = 0.8f;
-        if (spawnIntervalMax < 1.5f) spawnIntervalMax = 1.5f;
     }
 }
