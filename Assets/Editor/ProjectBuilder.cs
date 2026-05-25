@@ -432,8 +432,8 @@ public class ProjectBuilder
         pole.transform.localPosition = new Vector3(0f, 1.2f, 0f);
         pole.transform.localScale = new Vector3(0.15f, 1.2f, 0.15f);
 
-        Renderer pr = pole.GetComponent<Renderer>();
-        if (pr != null) SetCubeColor(pole, new Color(0.4f, 0.35f, 0.1f));
+        // removed unused Renderer pr
+        SetCubeColor(pole, new Color(0.4f, 0.35f, 0.1f));
 
         CreatePrefabAsset(obj, "Assets/Prefabs/Obstacles/Spinner.prefab");
         GameObject.DestroyImmediate(obj);
@@ -561,8 +561,8 @@ public class ProjectBuilder
             car.transform.localPosition = new Vector3(0f, 2f, -1f - i * 3f);
             car.transform.localScale = new Vector3(4.5f, 3f, 3.5f);
 
-            Renderer cr = car.GetComponent<Renderer>();
-            if (cr != null) SetCubeColor(car, new Color(0.4f, 0.08f, 0.08f));
+        // removed unused Renderer cr
+            SetCubeColor(car, new Color(0.4f, 0.08f, 0.08f));
 
             Collider cc = car.GetComponent<Collider>();
             if (cc != null) cc.isTrigger = false;
