@@ -243,7 +243,6 @@ public class ProjectBuilder
         Collider bodyCol = body.GetComponent<Collider>();
         if (bodyCol != null) bodyCol.enabled = false;
 
-        Renderer bodyRenderer = body.GetComponent<Renderer>();
         if (bodyRenderer != null) SetCubeColor(body, Color.white);
 
         // 玩家视觉：Sphere 头部
@@ -256,8 +255,7 @@ public class ProjectBuilder
         Collider headCol = head.GetComponent<Collider>();
         if (headCol != null) headCol.enabled = false;
 
-        Renderer headRenderer = head.GetComponent<Renderer>();
-        if (headRenderer != null) SetCubeColor(head, Color.white);
+        if (head.GetComponent<Renderer>() != null) SetCubeColor(head, Color.white);
 
         // === 6. 保存场景 ===
         string scenePath = "Assets/Scenes/Game.unity";
