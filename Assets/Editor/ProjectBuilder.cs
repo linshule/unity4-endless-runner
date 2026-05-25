@@ -216,7 +216,6 @@ public class ProjectBuilder
         // AdaptiveDifficulty
         GameObject adObj = CreateScriptObject("AdaptiveDifficulty", typeof(AdaptiveDifficulty));
 
-
         // === 5. 玩家 ===
         GameObject playerObj = new GameObject("Player");
         playerObj.tag = "Player";
@@ -243,7 +242,7 @@ public class ProjectBuilder
         Collider bodyCol = body.GetComponent<Collider>();
         if (bodyCol != null) bodyCol.enabled = false;
 
-        if (bodyRenderer != null) SetCubeColor(body, Color.white);
+        SetCubeColor(body, Color.white);
 
         // 玩家视觉：Sphere 头部
         GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -536,7 +535,7 @@ public class ProjectBuilder
         head.transform.localPosition = new Vector3(0f, 2f, 3f);
         head.transform.localScale = new Vector3(5f, 3f, 3f);
 
-        Renderer hr = head.GetComponent<Renderer>();
+        
         if (hr != null) SetCubeColor(head, new Color(0.5f, 0.1f, 0.1f));
 
         Collider hc = head.GetComponent<Collider>();
