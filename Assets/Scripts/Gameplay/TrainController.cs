@@ -33,12 +33,17 @@ public class TrainController : MonoBehaviour
         if (player == null || player.isDead) return;
         if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
-        // 列车追赶
-        float approachSpeed = baseApproachRate + (player.GetSpeed() * 0.3f);
-        currentDistance -= approachSpeed * Time.deltaTime;
+        // 距离变化 = 玩家速度 - 列车速度（你跑得快就甩开，跑得慢就被追上）
+        float playerSpeed = player.GetSpeed();
+        currentDistance += (playerSpeed - baseApproachRate) * Time.deltaTime;
+
+        // 限制距离范围
+        if (currentDistance > initialDistance * 2f)
+            currentDistance = initialDistance * 2f;
 
         // 画面边缘红光
-        warningIntensity = Mathf.Clamp01(1f - (currentDistance / initialDistance));
+        float dangerRatio = 1f - (currentDistance / initialDistance);
+        warningIntensity = Mathf.Clamp01(dangerRatio);
 
         UpdateTrainPosition();
 
