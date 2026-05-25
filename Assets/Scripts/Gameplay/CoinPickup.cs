@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class CoinPickup : MonoBehaviour
 {
@@ -23,6 +23,13 @@ public class CoinPickup : MonoBehaviour
             if (HUDController.Instance != null)
             {
                 HUDController.Instance.OnCoinCollected();
+            }
+
+            // 拾取金币推开列车 +3m
+            TrainController train = FindObjectOfType<TrainController>();
+            if (train != null)
+            {
+                train.AddDistance(3f);
             }
 
             // 回收

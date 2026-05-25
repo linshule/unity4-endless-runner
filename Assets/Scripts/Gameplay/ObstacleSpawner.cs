@@ -185,18 +185,8 @@ public class ObstacleSpawner : MonoBehaviour
 
         obj.SetActive(true);
 
-        ObstacleTag tag = obj.GetComponent<ObstacleTag>();
-        if (tag != null && tag.isTrap && !tag.isDynamic)
-        {
-            Collider col = obj.GetComponent<Collider>();
-            if (col == null)
-            {
-                BoxCollider bc = obj.AddComponent<BoxCollider>();
-                bc.size = new Vector3(5f, 0.5f, 2f);
-                bc.center = new Vector3(0f, -0.5f, 0f);
-                bc.isTrigger = false;
-            }
-        }
+        // 陷阱类障碍物(Gap/Pit/DeathZone)不应强制添加碰撞体
+        // 它们的碰撞逻辑由各自的子对象处理
 
         return obj;
     }
@@ -257,10 +247,15 @@ public class ObstacleSpawner : MonoBehaviour
             }
             else
             {
+                // 断台：显示黑色缺口标记（仅视觉提示，无碰撞体）
                 tag.isTrap = true; tag.isDynamic = false;
-                BoxCollider bc = obj.AddComponent<BoxCollider>();
-                bc.size = new Vector3(5f, 0.5f, 2f);
-                bc.center = new Vector3(0f, -0.5f, 0f);
+                GameObject gapVis = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                gapVis.transform.parent = obj.transform;
+                gapVis.transform.localPosition = new Vector3(0f, 0.02f, 0f);
+                gapVis.transform.localScale = new Vector3(4f, 0.05f, 3f);
+                gapVis.GetComponent<Renderer>().material.color = new Color(0.25f, 0.25f, 0.25f);
+                Collider gapCol = gapVis.GetComponent<Collider>();
+                if (gapCol != null) gapCol.enabled = false;
             }
         }
         else if (type == 1)
@@ -282,10 +277,15 @@ public class ObstacleSpawner : MonoBehaviour
             int subtype = Random.Range(0, 2);
             if (subtype == 0)
             {
+                // 深坑：黑色平板标记（仅视觉提示，无碰撞体）
                 tag.isTrap = true; tag.isDynamic = false;
-                BoxCollider bc = obj.AddComponent<BoxCollider>();
-                bc.size = new Vector3(6f, 0.3f, 4f);
-                bc.center = new Vector3(0f, -0.5f, 0f);
+                GameObject pitVis = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                pitVis.transform.parent = obj.transform;
+                pitVis.transform.localPosition = new Vector3(0f, -0.1f, 0f);
+                pitVis.transform.localScale = new Vector3(4f, 0.05f, 3f);
+                pitVis.GetComponent<Renderer>().material.color = new Color(0.25f, 0.2f, 0.15f);
+                Collider pitCol = pitVis.GetComponent<Collider>();
+                if (pitCol != null) pitCol.enabled = false;
             }
             else
             {

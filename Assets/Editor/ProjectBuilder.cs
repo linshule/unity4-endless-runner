@@ -366,12 +366,21 @@ public class ProjectBuilder
         CreatePrefabAsset(obj, "Assets/Prefabs/Obstacles/Spikes.prefab");
         GameObject.DestroyImmediate(obj);
     }
-
     static void CreateGapPrefab()
     {
-        // 断台只是一个标记对象，实际处理在碰撞检测中
+        // 断台：黑色缺口标记（纯视觉提示，玩家需跳跃通过）
         GameObject obj = new GameObject("Gap_O04");
-        obj.AddComponent<ObstacleTag>().isTrap = true;
+        ObstacleTag tag = obj.AddComponent<ObstacleTag>();
+        tag.isTrap = true;
+
+        GameObject gapVis = CreatePrimSafe(PrimitiveType.Cube);
+        gapVis.name = "GapVisual";
+        gapVis.transform.parent = obj.transform;
+        gapVis.transform.localPosition = new Vector3(0f, 0.02f, 0f);
+        gapVis.transform.localScale = new Vector3(4f, 0.05f, 3f);
+        SetCubeColor(gapVis, new Color(0.25f, 0.25f, 0.25f));
+        Collider gapCol = gapVis.GetComponent<Collider>();
+        if (gapCol != null) gapCol.enabled = false;
 
         CreatePrefabAsset(obj, "Assets/Prefabs/Obstacles/Gap.prefab");
         GameObject.DestroyImmediate(obj);

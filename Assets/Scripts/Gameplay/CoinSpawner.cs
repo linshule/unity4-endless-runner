@@ -64,6 +64,11 @@ public class CoinSpawner : MonoBehaviour
         if (col != null)
             col.isTrigger = true;
 
+        // 必须加 Rigidbody，否则 CharacterController 不会触发 OnTriggerEnter
+        Rigidbody rb = coin.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
+
         coin.AddComponent<CoinPickup>();
         return coin;
     }

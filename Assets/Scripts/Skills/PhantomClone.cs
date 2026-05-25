@@ -89,12 +89,25 @@ public class PhantomClone : MonoBehaviour
     {
         GameObject clone = new GameObject("PhantomClone");
 
+        // 需要 Rigidbody 才能触发 OnTriggerEnter（Unity 物理引擎要求）
+        Rigidbody rb = clone.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
+
+        // 半透明材质 Shader
+        Shader transShader = Shader.Find("Transparent/Diffuse");
+        if (transShader == null) transShader = Shader.Find("Diffuse");
+
         GameObject body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         body.transform.parent = clone.transform;
         body.transform.localPosition = new Vector3(0f, 1f, 0f);
         body.transform.localScale = new Vector3(0.5f, 1f, 0.5f);
         Renderer br = body.GetComponent<Renderer>();
-        if (br != null) br.material.color = new Color(0.3f, 0.7f, 1f, 0.5f);
+        if (br != null)
+        {
+            br.material.shader = transShader;
+            br.material.color = new Color(0.3f, 0.7f, 1f, 0.4f);
+        }
         Collider bc = body.GetComponent<Collider>();
         if (bc != null) bc.enabled = false;
 
@@ -103,11 +116,15 @@ public class PhantomClone : MonoBehaviour
         head.transform.localPosition = new Vector3(0f, 1.8f, 0f);
         head.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
         Renderer hr = head.GetComponent<Renderer>();
-        if (hr != null) hr.material.color = new Color(0.3f, 0.7f, 1f, 0.5f);
+        if (hr != null)
+        {
+            hr.material.shader = transShader;
+            hr.material.color = new Color(0.3f, 0.7f, 1f, 0.4f);
+        }
         Collider hc = head.GetComponent<Collider>();
         if (hc != null) hc.enabled = false;
 
-        // 触发碰撞器拾取金币
+        // 触发碰撞器拾取金币（Rigidbody 保证 OnTriggerEnter 生效）
         SphereCollider sc = clone.AddComponent<SphereCollider>();
         sc.isTrigger = true;
         sc.radius = 2f;

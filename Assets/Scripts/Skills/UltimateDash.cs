@@ -78,6 +78,13 @@ public class UltimateDash : MonoBehaviour
         if (controller != null)
             controller.detectCollisions = true;
 
+        // 冲刺推开列车
+        TrainController train = FindObjectOfType<TrainController>();
+        if (train != null)
+        {
+            train.AddDistance(15f);
+        }
+
         GameObject.Destroy(trail, 0.3f);
         isDashing = false;
     }
