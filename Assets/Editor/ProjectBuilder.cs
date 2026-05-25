@@ -152,37 +152,6 @@ public class ProjectBuilder
         cam.fieldOfView = 60f;
         cam.nearClipPlane = 0.5f;
 
-        // === 3. 三条赛道 ===
-        string[] laneNames = new string[] { "Track_Lane0", "Track_Lane1", "Track_Lane2" };
-        float[] laneX = new float[] { -4f, 0f, 4f };
-        Color[] laneColors = new Color[] {
-            new Color(0.5f, 0.5f, 0.5f),
-            new Color(0.35f, 0.35f, 0.35f),
-            new Color(0.5f, 0.5f, 0.5f)
-        };
-
-        for (int i = 0; i < 3; i++)
-        {
-            GameObject track = CreatePrimSafe(PrimitiveType.Cube);
-            track.name = laneNames[i];
-            track.transform.position = new Vector3(laneX[i], 0f, 200f);
-            track.transform.localScale = new Vector3(5f, 0.5f, 400f);
-            track.transform.parent = null; // 根节点
-
-            Renderer renderer = track.GetComponent<Renderer>();
-            if (renderer != null)
-            {
-                SetCubeColor(track, laneColors[i]);
-            }
-
-            // 确保有碰撞体
-            Collider col = track.GetComponent<Collider>();
-            if (col != null)
-            {
-                col.isTrigger = false;
-            }
-        }
-
         // === 4. 游戏管理器集合 ===
         // GameManager
         CreateScriptObject("GameManager", typeof(GameManager));

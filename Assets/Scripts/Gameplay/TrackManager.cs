@@ -3,58 +3,96 @@ using UnityEngine;
 public class TrackManager : MonoBehaviour
 {
     public PlayerController player;
-    
-    // === 赛道配置 ===
-    public float trackLength = 200f;
+
     public float trackWidth = 5f;
-    public float laneSpacing = 6f;
+    public float segmentLength = 200f;
+    public int segmentCount = 3;
     public float trackY = 0f;
     public float trackThickness = 0.5f;
 
-    // === 预制体/材质颜色 ===
     public Color leftColor = new Color(0.5f, 0.5f, 0.5f);
     public Color centerColor = new Color(0.3f, 0.3f, 0.3f);
     public Color rightColor = new Color(0.5f, 0.5f, 0.5f);
 
-    private GameObject[] tracks = new GameObject[3];
+    private GameObject[][] segments; // [lane][segment]
+    private float[] laneX = new float[] { -6f, 0f, 6f };
+    private Color[] laneColors = new Color[3];
+    private float segmentSpan;
 
     void Start()
     {
         if (player == null)
             player = FindObjectOfType<PlayerController>();
-        CreateTracks();
+
+        laneColors[0] = leftColor;
+        laneColors[1] = centerColor;
+        laneColors[2] = rightColor;
+
+        segmentSpan = segmentLength * segmentCount;
+        segments = new GameObject[3][];
+
+        for (int lane = 0; lane < 3; lane++)
+        {
+            segments[lane] = new GameObject[segmentCount];
+            for (int seg = 0; seg < segmentCount; seg++)
+            {
+                GameObject track = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                track.name = "Track_L" + lane + "_S" + seg;
+                float zCenter = seg * segmentLength + segmentLength * 0.5f;
+                track.transform.position = new Vector3(laneX[lane], trackY, zCenter);
+                track.transform.localScale = new Vector3(trackWidth, trackThickness, segmentLength);
+
+                Renderer renderer = track.GetComponent<Renderer>();
+                if (renderer != null)
+                {
+                    renderer.material.color = laneColors[lane];
+                }
+
+                // 碰撞体保持非trigger
+                Collider col = track.GetComponent<Collider>();
+                if (col != null) col.isTrigger = false;
+
+                segments[lane][seg] = track;
+            }
+        }
     }
 
-    void CreateTracks()
+    void Update()
     {
-        float[] lanesX = new float[] { -4f, 0f, 4f };
-        Color[] colors = new Color[] { leftColor, centerColor, rightColor };
+        if (player == null || player.isDead) return;
 
-        for (int i = 0; i < 3; i++)
+        float playerZ = player.transform.position.z;
+
+        // 当玩家跑过一段，把最后那段挪到前面
+        for (int lane = 0; lane < 3; lane++)
         {
-            GameObject track = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            track.name = "Track_Lane" + i;
-            track.transform.position = new Vector3(lanesX[i], trackY, trackLength * 0.5f);
-            track.transform.localScale = new Vector3(trackWidth, trackThickness, trackLength);
-
-            Renderer renderer = track.GetComponent<Renderer>();
-            if (renderer != null)
+            for (int seg = 0; seg < segmentCount; seg++)
             {
-                renderer.material.color = colors[i];
+                GameObject track = segments[lane][seg];
+                float trackEnd = track.transform.position.z + segmentLength * 0.5f;
+
+                if (playerZ > trackEnd + segmentLength)
+                {
+                    // 挪到前面
+                    float newZ = track.transform.position.z + segmentSpan;
+                    track.transform.position = new Vector3(laneX[lane], trackY, newZ);
+                }
             }
-
-            tracks[i] = track;
-
-            // 添加 CollapseSegment 组件用于塌陷
-            CollapseSegment seg = track.AddComponent<CollapseSegment>();
-            seg.laneIndex = i;
         }
     }
 
     public GameObject GetTrack(int lane)
     {
-        if (lane >= 0 && lane < 3)
-            return tracks[lane];
-        return null;
+        // 返回玩家脚下的那段
+        if (lane < 0 || lane >= 3) return null;
+        float playerZ = player != null ? player.transform.position.z : 0f;
+        foreach (GameObject seg in segments[lane])
+        {
+            float segStart = seg.transform.position.z - segmentLength * 0.5f;
+            float segEnd = seg.transform.position.z + segmentLength * 0.5f;
+            if (playerZ >= segStart && playerZ < segEnd)
+                return seg;
+        }
+        return segments[lane][0];
     }
 }
