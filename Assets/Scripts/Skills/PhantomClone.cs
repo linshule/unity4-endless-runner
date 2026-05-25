@@ -38,7 +38,7 @@ public class PhantomClone : MonoBehaviour
 
         // 三轨道各生成一个半透明分身
         GameObject[] clones = new GameObject[3];
-        float[] laneX = new float[] { -2f, 0f, 2f };
+        float[] laneX = new float[] { -4f, 0f, 4f };
 
         for (int i = 0; i < 3; i++)
         {

@@ -4,7 +4,7 @@ using System.Collections;
 public class PlayerController : MonoBehaviour
 {
     // === 轨道配置 ===
-    public float[] laneX = new float[] { -2f, 0f, 2f };
+    public float[] laneX = new float[] { -4f, 0f, 4f };
     public int currentLane = 1; // 初始在中间轨道
     public float laneSwitchSpeed = 8f;
 

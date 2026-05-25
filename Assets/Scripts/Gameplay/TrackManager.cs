@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class TrackManager : MonoBehaviour
 {
@@ -6,8 +6,8 @@ public class TrackManager : MonoBehaviour
     
     // === 赛道配置 ===
     public float trackLength = 200f;
-    public float trackWidth = 1.5f;
-    public float laneSpacing = 2f;
+    public float trackWidth = 3f;
+    public float laneSpacing = 4f;
     public float trackY = 0f;
     public float trackThickness = 0.5f;
 
@@ -27,7 +27,7 @@ public class TrackManager : MonoBehaviour
 
     void CreateTracks()
     {
-        float[] lanesX = new float[] { -2f, 0f, 2f };
+        float[] lanesX = new float[] { -4f, 0f, 4f };
         Color[] colors = new Color[] { leftColor, centerColor, rightColor };
 
         for (int i = 0; i < 3; i++)

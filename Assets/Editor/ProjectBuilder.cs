@@ -122,17 +122,17 @@ public class ProjectBuilder
             camObj = new GameObject("Main Camera");
             cam = camObj.AddComponent<Camera>();
         }
-        camObj.transform.position = new Vector3(0f, 6f, -8f); // CameraFollow 会自动跟随玩家
+        camObj.transform.position = new Vector3(0f, 12f, -16f); // CameraFollow 会自动跟随玩家
         camObj.transform.rotation = Quaternion.Euler(30f, 0f, 0f);
         cam.backgroundColor = new Color(0.4f, 0.6f, 0.9f);
         camObj.AddComponent<CameraFollow>();
         cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.fieldOfView = 60f;
-        cam.nearClipPlane = 0.3f;
+        cam.fieldOfView = 70f;
+        cam.nearClipPlane = 0.5f;
 
         // === 3. 三条赛道 ===
         string[] laneNames = new string[] { "Track_Lane0", "Track_Lane1", "Track_Lane2" };
-        float[] laneX = new float[] { -2f, 0f, 2f };
+        float[] laneX = new float[] { -4f, 0f, 4f };
         Color[] laneColors = new Color[] {
             new Color(0.5f, 0.5f, 0.5f),
             new Color(0.35f, 0.35f, 0.35f),
@@ -143,8 +143,8 @@ public class ProjectBuilder
         {
             GameObject track = GameObject.CreatePrimitive(PrimitiveType.Cube);
             track.name = laneNames[i];
-            track.transform.position = new Vector3(laneX[i], 0f, 100f);
-            track.transform.localScale = new Vector3(1.5f, 0.5f, 200f);
+            track.transform.position = new Vector3(laneX[i], 0f, 150f);
+            track.transform.localScale = new Vector3(3f, 0.5f, 300f);
             track.transform.parent = null; // 根节点
 
             Renderer renderer = track.GetComponent<Renderer>();
@@ -320,7 +320,7 @@ public class ProjectBuilder
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.parent = obj.transform;
         cube.transform.localPosition = Vector3.zero;
-        cube.transform.localScale = new Vector3(1f, 1f, 1f);
+        cube.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 
         Renderer r = cube.GetComponent<Renderer>();
         if (r != null) r.material.color = new Color(0.25f, 0.25f, 0.25f);
@@ -342,8 +342,8 @@ public class ProjectBuilder
         GameObject obj = new GameObject("Wall_O02");
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.parent = obj.transform;
-        cube.transform.localPosition = new Vector3(0f, 1.5f, 0f);
-        cube.transform.localScale = new Vector3(3f, 3f, 0.5f);
+        cube.transform.localPosition = new Vector3(0f, 2.5f, 0f);
+        cube.transform.localScale = new Vector3(6f, 5f, 1f);
 
         Renderer r = cube.GetComponent<Renderer>();
         if (r != null) r.material.color = new Color(0.6f, 0.15f, 0.15f);
@@ -397,8 +397,8 @@ public class ProjectBuilder
 
         GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
         bar.transform.parent = obj.transform;
-        bar.transform.localPosition = new Vector3(0f, 1.2f, 0f);
-        bar.transform.localScale = new Vector3(4f, 0.3f, 0.3f);
+        bar.transform.localPosition = new Vector3(0f, 2f, 0f);
+        bar.transform.localScale = new Vector3(6f, 0.5f, 0.5f);
 
         Renderer r = bar.GetComponent<Renderer>();
         if (r != null) r.material.color = new Color(0.7f, 0.6f, 0.1f);
@@ -433,7 +433,7 @@ public class ProjectBuilder
         GameObject plate = GameObject.CreatePrimitive(PrimitiveType.Cube);
         plate.transform.parent = obj.transform;
         plate.transform.localPosition = new Vector3(0f, -2f, 0f);
-        plate.transform.localScale = new Vector3(4f, 0.1f, 8f);
+        plate.transform.localScale = new Vector3(6f, 0.1f, 10f);
 
         Renderer r = plate.GetComponent<Renderer>();
         if (r != null) r.material.color = Color.black;
@@ -455,7 +455,7 @@ public class ProjectBuilder
         GameObject zone = GameObject.CreatePrimitive(PrimitiveType.Cube);
         zone.transform.parent = obj.transform;
         zone.transform.localPosition = new Vector3(0f, 1f, 0f);
-        zone.transform.localScale = new Vector3(1.5f, 2f, 2f);
+        zone.transform.localScale = new Vector3(2.5f, 3f, 3f);
 
         Renderer r = zone.GetComponent<Renderer>();
         if (r != null) r.material.color = new Color(1f, 0.1f, 0.1f);
@@ -527,7 +527,7 @@ public class ProjectBuilder
         head.name = "TrainHead";
         head.transform.parent = obj.transform;
         head.transform.localPosition = new Vector3(0f, 2f, 3f);
-        head.transform.localScale = new Vector3(3f, 2f, 2f);
+        head.transform.localScale = new Vector3(5f, 3f, 3f);
 
         Renderer hr = head.GetComponent<Renderer>();
         if (hr != null) hr.material.color = new Color(0.5f, 0.1f, 0.1f);
@@ -542,7 +542,7 @@ public class ProjectBuilder
             car.name = "TrainCar_" + i;
             car.transform.parent = obj.transform;
             car.transform.localPosition = new Vector3(0f, 2f, -1f - i * 3f);
-            car.transform.localScale = new Vector3(2.8f, 2f, 2.5f);
+            car.transform.localScale = new Vector3(4.5f, 3f, 3.5f);
 
             Renderer cr = car.GetComponent<Renderer>();
             if (cr != null) cr.material.color = new Color(0.4f, 0.08f, 0.08f);

@@ -71,7 +71,7 @@ public class PowerUpManager : MonoBehaviour
 
         // 随机位置
         int lane = Random.Range(0, 3);
-        float x = (lane - 1) * 2f;
+        float x = (lane - 1) * 4f;
         float z = player.transform.position.z + Random.Range(40f, 80f);
         float y = (Random.value < 0.3f) ? 3f : 1f; // 30% 浮空
 
