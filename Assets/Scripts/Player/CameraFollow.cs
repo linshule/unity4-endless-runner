@@ -4,7 +4,7 @@ public class CameraFollow : MonoBehaviour
 {
     public Transform target;
     public Vector3 offset = new Vector3(0f, 8f, -12f);
-    public float smoothSpeed = 8f;
+    public float smoothSpeed = 5f;
 
     void Start()
     {
@@ -27,10 +27,15 @@ public class CameraFollow : MonoBehaviour
         }
 
         Vector3 desiredPos = target.position + offset;
-        Vector3 smoothedPos = Vector3.Lerp(transform.position, desiredPos, smoothSpeed * Time.deltaTime);
-        transform.position = smoothedPos;
 
-        // 始终注视玩家
+        // X 和 Z 刚性跟随（避免追逐延迟导致抖动）
+        // Y 轴平滑跟随（跳跃时缓冲）
+        transform.position = new Vector3(
+            desiredPos.x,
+            Mathf.Lerp(transform.position.y, desiredPos.y, smoothSpeed * Time.deltaTime),
+            desiredPos.z
+        );
+
         transform.LookAt(target.position + Vector3.up * 1f);
     }
 }

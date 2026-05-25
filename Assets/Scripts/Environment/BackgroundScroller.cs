@@ -72,8 +72,8 @@ public class BackgroundScroller : MonoBehaviour
             layers[2].scrollSpeedFactor = 0.45f;
             layers[2].spawnZRange = 80f;
             layers[2].lateralRange = 18f;
-            layers[2].minY = 2f;
-            layers[2].maxY = 10f;
+            layers[2].minY = 8f;
+            layers[2].maxY = 18f;
             layers[2].minScale = 0.8f;
             layers[2].maxScale = 2.5f;
 
@@ -84,11 +84,11 @@ public class BackgroundScroller : MonoBehaviour
             layers[3].cubeCount = 20;
             layers[3].scrollSpeedFactor = 0.7f;
             layers[3].spawnZRange = 60f;
-            layers[3].lateralRange = 12f;
-            layers[3].minY = 1.5f;
-            layers[3].maxY = 6f;
-            layers[3].minScale = 0.5f;
-            layers[3].maxScale = 1.5f;
+            layers[3].lateralRange = 20f;
+            layers[3].minY = 6f;
+            layers[3].maxY = 14f;
+            layers[3].minScale = 0.8f;
+            layers[3].maxScale = 2f;
         }
 
         // 初始化所有层的 Cube

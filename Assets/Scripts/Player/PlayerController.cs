@@ -180,13 +180,7 @@ public class PlayerController : MonoBehaviour
             isGrounded = (transform.position.y <= slideGroundY && verticalVelocity <= 0f);
         }
 
-        if (isGrounded && transform.position.y > 0.5f)
-        {
-            // 修正位置到地面
-            Vector3 pos = transform.position;
-            pos.y = 1.5f;
-            transform.position = pos;
-        }
+        // 接地时不做位置修正，CharacterController 自行处理
     }
 
     public void Die()
