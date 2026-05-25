@@ -4,10 +4,10 @@ using System.Collections;
 public class TerrainCollapse : MonoBehaviour
 {
     // === 塌陷参数 ===
-    public float minCollapseInterval = 10f;
-    public float maxCollapseInterval = 20f;
+    public float minCollapseInterval = 25f;
+    public float maxCollapseInterval = 40f;
     public float collapseDuration = 4f;
-    public float warningTime = 0.5f;
+    public float warningTime = 1f;
     public float sinkDepth = 3f;
 
     private float nextCollapseTime;
@@ -18,15 +18,17 @@ public class TerrainCollapse : MonoBehaviour
     {
         trackManager = FindObjectOfType<TrackManager>();
         player = FindObjectOfType<PlayerController>();
-        nextCollapseTime = Time.time + Random.Range(5f, 10f);
+        nextCollapseTime = Time.time + Random.Range(15f, 25f);
     }
+
+    private bool isCollapsing = false;
 
     void Update()
     {
         if (player == null || player.isDead) return;
         if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
-        if (Time.time >= nextCollapseTime)
+        if (!isCollapsing && Time.time >= nextCollapseTime)
         {
             int lane = Random.Range(0, 3);
             StartCoroutine(CollapseLane(lane));
@@ -38,6 +40,7 @@ public class TerrainCollapse : MonoBehaviour
 
     IEnumerator CollapseLane(int lane)
     {
+        isCollapsing = true;
         GameObject track = null;
         if (trackManager != null)
         {
@@ -55,7 +58,7 @@ public class TerrainCollapse : MonoBehaviour
             {
                 if (renderer != null)
                 {
-                    renderer.material.color = (Mathf.Floor(Time.time * 8f) % 2 == 0) 
+                    renderer.material.color = (Mathf.Floor(Time.time * 3f) % 2 == 0) 
                         ? Color.yellow 
                         : originalColor;
                 }
@@ -103,6 +106,7 @@ public class TerrainCollapse : MonoBehaviour
         {
             track.transform.position = originalPos;
         }
+        isCollapsing = false;
     }
 
     public void SetCollapseFrequency(float interval)
