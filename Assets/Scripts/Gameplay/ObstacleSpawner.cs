@@ -9,10 +9,10 @@ public class ObstacleSpawner : MonoBehaviour
     public int poolSize = 20;
 
     // === 生成参数 ===
-    public float spawnDistanceMin = 40f;
-    public float spawnDistanceMax = 80f;
-    public float spawnIntervalMin = 1.5f;
-    public float spawnIntervalMax = 3f;
+    public float spawnDistanceMin = 60f;
+    public float spawnDistanceMax = 120f;
+    public float spawnIntervalMin = 3f;
+    public float spawnIntervalMax = 6f;
     private float nextSpawnZ;
 
     // === 玩家引用 ===
@@ -257,8 +257,8 @@ public class ObstacleSpawner : MonoBehaviour
         trapsUnlocked = (difficultyLevel >= 7);
 
         // 调整生成频率
-        spawnIntervalMin = 2f - (difficultyLevel * 0.1f);
-        spawnIntervalMax = 4f - (difficultyLevel * 0.15f);
+        spawnIntervalMin = 4f - (difficultyLevel * 0.15f);
+        spawnIntervalMax = 7f - (difficultyLevel * 0.2f);
         if (spawnIntervalMin < 0.5f) spawnIntervalMin = 0.5f;
         if (spawnIntervalMax < 1f) spawnIntervalMax = 1f;
     }
@@ -287,7 +287,14 @@ public class ObstacleSpawner : MonoBehaviour
 
         if (type == 0) // 静态障碍
         {
-            int subtype = Random.Range(0, 4);
+            // 加权随机：石块40% 墙体10% 尖刺30% 断台20%
+            float roll = Random.value;
+            int subtype;
+            if (roll < 0.4f) subtype = 0;       // 石块
+            else if (roll < 0.5f) subtype = 1;  // 墙体（仅10%）
+            else if (roll < 0.8f) subtype = 2;  // 尖刺
+            else subtype = 3;                    // 断台
+
             if (subtype == 0) // O01 石块
             {
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
