@@ -267,7 +267,7 @@ public class UIManager : MonoBehaviour
         GUI.Label(new Rect(0, h * 0.42f, w, 40), "金币: " + gm.coinCount, valStyle);
 
         float btnW = w * 0.28f;
-        if (GUI.Button(new Rect(w * 0.22f, h * 0.58f, btnW, 50), "重新开始", btnStyle))
+        if (GUI.Button(new Rect((w - w * 0.28f) / 2f, h * 0.58f, btnW, 50), "重新开始", btnStyle))
             OnRestartClicked();
     }
 
