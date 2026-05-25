@@ -75,8 +75,8 @@ public class ObstacleSpawner : MonoBehaviour
         // 根据难度选择障碍物类型
         int type = SelectObstacleType();
 
-        // 随机选择占用的轨道数
-        int lanesToBlock = Random.Range(1, 4); // 1~3 条轨道
+        // 最多占 2 条轨道，始终保证至少 1 条可通行
+        int lanesToBlock = Random.Range(1, 3); // 1~2 条
         List<int> availableLanes = new List<int>() { 0, 1, 2 };
         List<int> blockedLanes = new List<int>();
 
@@ -86,12 +86,6 @@ public class ObstacleSpawner : MonoBehaviour
             int idx = Random.Range(0, availableLanes.Count);
             blockedLanes.Add(availableLanes[idx]);
             availableLanes.RemoveAt(idx);
-        }
-
-        // 保证至少 1 条轨道可通行
-        if (blockedLanes.Count >= 3)
-        {
-            blockedLanes.RemoveAt(Random.Range(0, 3));
         }
 
         // 在每条被阻塞的轨道上生成障碍物
