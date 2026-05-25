@@ -171,7 +171,6 @@ public class UIManager : MonoBehaviour
 
             // E 冲刺
             float dashCD = sm.GetCooldownRemaining("Dash");
-            float dashTotal = sm.GetCooldownDuration("Dash");
             bool dashReady = dashCD <= 0f;
             Color dashColor = dashReady ? Color.green : new Color(0.3f, 0.5f, 0.3f);
             GUI.color = dashColor;

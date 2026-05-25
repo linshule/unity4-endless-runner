@@ -609,7 +609,7 @@ public class ProjectBuilder
             "Assets/Prefabs/Items/Coin.prefab", typeof(GameObject)) as GameObject;
         GameObject doubleScorePrefab = AssetDatabase.LoadAssetAtPath(
             "Assets/Prefabs/Items/DoubleScore.prefab", typeof(GameObject)) as GameObject;
-        AssetDatabase.LoadAssetAtPath(
+        AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Items/Train.prefab", typeof(GameObject));
             "Assets/Prefabs/Items/Train.prefab", typeof(GameObject)) as GameObject;
 
         // 连线 ObstacleSpawner
