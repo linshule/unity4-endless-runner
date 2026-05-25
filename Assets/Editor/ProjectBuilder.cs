@@ -547,7 +547,7 @@ public class ProjectBuilder
         head.transform.localScale = new Vector3(5f, 3f, 3f);
 
         
-        if (hr != null) SetCubeColor(head, new Color(0.5f, 0.1f, 0.1f));
+        SetCubeColor(head, new Color(0.5f, 0.1f, 0.1f));
 
         Collider hc = head.GetComponent<Collider>();
         if (hc != null) hc.isTrigger = false;
