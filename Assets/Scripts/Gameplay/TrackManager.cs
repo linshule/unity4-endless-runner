@@ -6,8 +6,8 @@ public class TrackManager : MonoBehaviour
     
     // === 赛道配置 ===
     public float trackLength = 200f;
-    public float trackWidth = 4f;
-    public float laneSpacing = 5f;
+    public float trackWidth = 5f;
+    public float laneSpacing = 6f;
     public float trackY = 0f;
     public float trackThickness = 0.5f;
 

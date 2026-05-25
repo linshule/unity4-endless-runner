@@ -122,12 +122,12 @@ public class ProjectBuilder
             camObj = new GameObject("Main Camera");
             cam = camObj.AddComponent<Camera>();
         }
-        camObj.transform.position = new Vector3(0f, 15f, -20f); // CameraFollow 会自动跟随玩家
+        camObj.transform.position = new Vector3(0f, 8f, -12f); // CameraFollow 会自动跟随玩家
         camObj.transform.rotation = Quaternion.Euler(30f, 0f, 0f);
         cam.backgroundColor = new Color(0.4f, 0.6f, 0.9f);
         camObj.AddComponent<CameraFollow>();
         cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.fieldOfView = 75f;
+        cam.fieldOfView = 60f;
         cam.nearClipPlane = 0.5f;
 
         // === 3. 三条赛道 ===
@@ -143,8 +143,8 @@ public class ProjectBuilder
         {
             GameObject track = GameObject.CreatePrimitive(PrimitiveType.Cube);
             track.name = laneNames[i];
-            track.transform.position = new Vector3(laneX[i], 0f, 175f);
-            track.transform.localScale = new Vector3(4f, 0.5f, 350f);
+            track.transform.position = new Vector3(laneX[i], 0f, 200f);
+            track.transform.localScale = new Vector3(5f, 0.5f, 400f);
             track.transform.parent = null; // 根节点
 
             Renderer renderer = track.GetComponent<Renderer>();

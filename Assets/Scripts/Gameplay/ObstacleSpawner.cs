@@ -99,7 +99,7 @@ public class ObstacleSpawner : MonoBehaviour
 
         foreach (int lane in blockedLanes)
         {
-            float laneX = (lane - 1) * 5f; // -5, 0, 5
+            float laneX = (lane - 1) * 6f; // -6, 0, 6
 
             GameObject prefab = null;
             if (type == 0 && staticObstaclePrefabs != null && staticObstaclePrefabs.Length > 0)

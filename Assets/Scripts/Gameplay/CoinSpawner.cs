@@ -88,7 +88,7 @@ public class CoinSpawner : MonoBehaviour
             if (coin == null) break;
 
             int lane = Random.Range(0, 3);
-            float x = (lane - 1) * 5f;
+            float x = (lane - 1) * 6f;
             float z = startZ + i * 2f;
 
             // 随机浮空或地面
