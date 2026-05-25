@@ -43,7 +43,6 @@ public class AdaptiveDifficulty : MonoBehaviour
     private float baseMaxSpeed = 25f;
     private float baseTrainApproach = 2f;
     private float baseSpawnDistanceMin = 80f;
-    private float baseSpawnDistMax = 150f;
     private float baseCollapseMaxInterval = 20f;
 
     void Awake()
@@ -76,7 +75,7 @@ public class AdaptiveDifficulty : MonoBehaviour
         if (obstacleSpawner != null)
         {
             baseSpawnDistanceMin = obstacleSpawner.spawnDistanceMin;
-            baseSpawnDistMax = obstacleSpawner.spawnDistanceMax;
+            150f = obstacleSpawner.spawnDistanceMax;
         }
     }
 

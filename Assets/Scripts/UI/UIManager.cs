@@ -180,7 +180,6 @@ public class UIManager : MonoBehaviour
 
             // R 分身
             float cloneCD = sm.GetCooldownRemaining("Clone");
-            float cloneTotal = sm.GetCooldownDuration("Clone");
             bool cloneReady = cloneCD <= 0f;
             Color cloneColor = cloneReady ? Color.cyan : new Color(0.2f, 0.4f, 0.5f);
             GUI.color = cloneColor;
