@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 public class SkillManager : MonoBehaviour
@@ -29,6 +29,7 @@ public class SkillManager : MonoBehaviour
     void Update()
     {
         if (player == null || player.isDead) return;
+        if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
         // 更新冷却
         List<string> keys = new List<string>(cooldowns.Keys);

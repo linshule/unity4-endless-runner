@@ -62,6 +62,9 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead) return;
 
+        GameManager gm = GameManager.Instance;
+        if (gm == null || gm.state != GameState.Playing) return;
+
         // 速度递增
         if (currentSpeed < maxSpeed)
         {

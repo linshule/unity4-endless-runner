@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class PowerUpManager : MonoBehaviour
 {
@@ -26,6 +26,7 @@ public class PowerUpManager : MonoBehaviour
     void Update()
     {
         if (player == null || player.isDead) return;
+        if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
         // 双倍分数计时
         if (doubleScoreActive)

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class PhantomClone : MonoBehaviour
@@ -19,6 +19,7 @@ public class PhantomClone : MonoBehaviour
     void Update()
     {
         if (player == null || player.isDead) return;
+        if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
         if (clonesActive) return;
 
         if (Input.GetKeyDown(KeyCode.R))

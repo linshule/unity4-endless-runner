@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class UltimateDash : MonoBehaviour
@@ -22,6 +22,7 @@ public class UltimateDash : MonoBehaviour
     void Update()
     {
         if (player == null || player.isDead) return;
+        if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
         if (isDashing) return;
 
         if (Input.GetKeyDown(KeyCode.E))

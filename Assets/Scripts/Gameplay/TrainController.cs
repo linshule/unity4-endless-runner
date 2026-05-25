@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class TrainController : MonoBehaviour
 {
@@ -31,6 +31,7 @@ public class TrainController : MonoBehaviour
     void Update()
     {
         if (player == null || player.isDead) return;
+        if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
         // 列车追赶
         float approachSpeed = baseApproachRate + (player.GetSpeed() * 0.3f);

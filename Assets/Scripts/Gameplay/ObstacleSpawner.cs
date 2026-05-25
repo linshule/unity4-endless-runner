@@ -45,6 +45,7 @@ public class ObstacleSpawner : MonoBehaviour
     void Update()
     {
         if (player == null || player.isDead) return;
+        if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
         // 回收后方障碍物
         RecycleObstacles();

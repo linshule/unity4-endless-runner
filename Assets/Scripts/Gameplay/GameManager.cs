@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public enum GameState
@@ -243,6 +243,8 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
+        // 重置状态到 Menu，让新场景显示主菜单
+        state = GameState.Menu;
         Application.LoadLevel(Application.loadedLevel);
     }
 

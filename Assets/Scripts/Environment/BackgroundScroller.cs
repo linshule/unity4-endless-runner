@@ -147,6 +147,7 @@ public class BackgroundScroller : MonoBehaviour
     void Update()
     {
         if (player == null || player.isDead) return;
+        if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
         float playerSpeed = player.GetSpeed();
         float playerZ = player.transform.position.z;
