@@ -177,7 +177,7 @@ public class ProjectBuilder
         GameObject gmObj = CreateScriptObject("GameManager", typeof(GameManager));
         
         // TrackManager  
-        GameObject tmObj = CreateScriptObject("TrackManager", typeof(TrackManager));
+        CreateScriptObject("TrackManager", typeof(TrackManager));
 
         // ObstacleSpawner
         GameObject osObj = CreateScriptObject("ObstacleSpawner", typeof(ObstacleSpawner));
@@ -331,7 +331,7 @@ public class ProjectBuilder
         cube.transform.localPosition = Vector3.zero;
         cube.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 
-        Renderer r = cube.GetComponent<Renderer>();
+        // Renderer handled by SetCubeColor
         SetCubeColor(cube, new Color(0.25f, 0.25f, 0.25f));
 
         Collider col = cube.GetComponent<Collider>();
@@ -354,7 +354,7 @@ public class ProjectBuilder
         cube.transform.localPosition = new Vector3(0f, 0.75f, 0f);
         cube.transform.localScale = new Vector3(6f, 5f, 1f);
 
-        Renderer r = cube.GetComponent<Renderer>();
+        // Renderer handled by SetCubeColor
         SetCubeColor(cube, new Color(0.6f, 0.15f, 0.15f));
 
         Collider col = cube.GetComponent<Collider>();
@@ -409,7 +409,7 @@ public class ProjectBuilder
         bar.transform.localPosition = new Vector3(0f, 2f, 0f);
         bar.transform.localScale = new Vector3(6f, 0.5f, 0.5f);
 
-        Renderer r = bar.GetComponent<Renderer>();
+        // Renderer handled by SetCubeColor
         SetCubeColor(bar, new Color(0.7f, 0.6f, 0.1f));
 
         Collider col = bar.GetComponent<Collider>();
@@ -466,7 +466,7 @@ public class ProjectBuilder
         zone.transform.localPosition = new Vector3(0f, 1f, 0f);
         zone.transform.localScale = new Vector3(2.5f, 3f, 3f);
 
-        Renderer r = zone.GetComponent<Renderer>();
+        // Renderer handled by SetCubeColor
         SetCubeColor(zone, new Color(1f, 0.1f, 0.1f));
 
         Collider col = zone.GetComponent<Collider>();
@@ -539,7 +539,7 @@ public class ProjectBuilder
         head.transform.localScale = new Vector3(5f, 3f, 3f);
 
         Renderer hr = head.GetComponent<Renderer>();
-        if (hr != null) hSetCubeColor(cube, new Color(0.5f, 0.1f, 0.1f));
+        if (hr != null) SetCubeColor(head, new Color(0.5f, 0.1f, 0.1f));
 
         Collider hc = head.GetComponent<Collider>();
         if (hc != null) hc.isTrigger = false;
@@ -579,7 +579,7 @@ public class ProjectBuilder
             AssetDatabase.DeleteAsset(path);
         }
 
-        Object prefab = PrefabUtility.CreatePrefab(path, obj);
+        PrefabUtility.CreatePrefab(path, obj);
         UnityEngine.Debug.Log("[ProjectBuilder] 预制体: " + path);
     }
 
@@ -609,7 +609,7 @@ public class ProjectBuilder
             "Assets/Prefabs/Items/Coin.prefab", typeof(GameObject)) as GameObject;
         GameObject doubleScorePrefab = AssetDatabase.LoadAssetAtPath(
             "Assets/Prefabs/Items/DoubleScore.prefab", typeof(GameObject)) as GameObject;
-        GameObject trainPrefab = AssetDatabase.LoadAssetAtPath(
+        AssetDatabase.LoadAssetAtPath(
             "Assets/Prefabs/Items/Train.prefab", typeof(GameObject)) as GameObject;
 
         // 连线 ObstacleSpawner
