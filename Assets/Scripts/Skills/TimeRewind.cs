@@ -75,6 +75,9 @@ public class TimeRewind : MonoBehaviour
         isRewinding = true;
         canRewind = false;
 
+        // 回溯期间无敌，防止原地复活被障碍物秒杀
+        player.isInvincible = true;
+
         gameManager.TriggerRewind();
 
         // 找 2 秒前快照
@@ -104,6 +107,10 @@ public class TimeRewind : MonoBehaviour
 
         player.SetPosition(endPos);
         isRewinding = false;
+
+        // 延迟取消无敌，确保回溯后不会立即被碰撞检测杀死
+        yield return new WaitForSeconds(0.3f);
+        player.isInvincible = false;
     }
 
     public void OnRewindUnlocked()
