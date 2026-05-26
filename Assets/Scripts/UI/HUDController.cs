@@ -19,7 +19,7 @@ public class HUDController : MonoBehaviour
     public void OnPlayerDead() { }
     public void OnGameOver() { }
     public void OnCoinCollected() { }
-    public void OnRewindUnlocked() { }
+    public void OnRewindUnlocked() { TimeRewind tr = FindObjectOfType<TimeRewind>(); if (tr != null) tr.OnRewindUnlocked(); }
     public void OnDoubleScoreActivated(float duration) { }
     public void OnDoubleScoreDeactivated() { }
 
