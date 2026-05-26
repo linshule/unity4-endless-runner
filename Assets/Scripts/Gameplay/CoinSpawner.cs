@@ -8,7 +8,7 @@ public class CoinSpawner : MonoBehaviour
 
     public float spawnDistanceMin = 25f;
     public float spawnDistanceMax = 100f;
-    public float floatCoinHeight = 3f;
+    public float floatCoinHeight = 5f;
     public float floatCoinChance = 0.35f;
 
     private float nextSpawnZ;
