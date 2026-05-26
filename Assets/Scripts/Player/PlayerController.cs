@@ -9,10 +9,10 @@ public class PlayerController : MonoBehaviour
     public float laneSwitchSpeed = 12f;
 
     // === 移动参数 ===
-    public float baseSpeed = 10f;
+    public float baseSpeed = 15f;
     public float currentSpeed;
-    public float speedIncreaseRate = 0.05f;
-    public float maxSpeed = 25f;
+    public float speedIncreaseRate = 0.08f;
+    public float maxSpeed = 35f;
 
     // === 跳跃参数 ===
     public float jumpHeight = 25f;

@@ -39,8 +39,8 @@ public class AdaptiveDifficulty : MonoBehaviour
     private PlayerController player;
 
     // === 难度参数基准 ===
-    private float baseSpeed = 10f;
-    private float baseMaxSpeed = 25f;
+    private float baseSpeed = 15f;
+    private float baseMaxSpeed = 35f;
     private float baseTrainApproach = 2f;
     private float baseSpawnDistanceMin = 80f;
     private float baseCollapseMaxInterval = 12f;

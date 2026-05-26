@@ -35,7 +35,7 @@ public class TrainController : MonoBehaviour
 
         // 列车持续逼近，玩家速度越快逼近越慢
         float playerSpeed = player.GetSpeed();
-        float speedRatio = Mathf.Clamp01(playerSpeed / 15f);
+        float speedRatio = Mathf.Clamp01(playerSpeed / 20f);
         float approachSpeed = baseApproachRate * (1f - speedRatio * 0.85f);
         if (approachSpeed < 0.15f) approachSpeed = 0.15f;
         currentDistance -= approachSpeed * Time.deltaTime;
