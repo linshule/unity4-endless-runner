@@ -40,7 +40,7 @@ public class TerrainCollapse : MonoBehaviour
         float laneX = (lane - 1) * 6f;
 
         // 塌陷区紧跟玩家脚下前方
-        float baseZ = player.transform.position.z + Random.Range(2f, 6f);
+        float baseZ = player.transform.position.z + Random.Range(12f, 20f);
         float trapLength = 3f; // 足够长，即使跑过去也还在陷阱范围内
 
         // 地板碎片
