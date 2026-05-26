@@ -46,7 +46,7 @@ public class TerrainCollapse : MonoBehaviour
         // 创建小块塌陷标记（4x4m，仅视觉）
         GameObject patch = GameObject.CreatePrimitive(PrimitiveType.Cube);
         patch.name = "CollapsePatch";
-        patch.transform.position = new Vector3(laneX, 0.02f, patchZ);
+        patch.transform.position = new Vector3(laneX, 0.26f, patchZ);
         patch.transform.localScale = new Vector3(4f, 0.06f, 4f);
         Renderer patchR = patch.GetComponent<Renderer>();
         if (patchR != null) patchR.material.color = new Color(0.3f, 0.3f, 0.1f);
