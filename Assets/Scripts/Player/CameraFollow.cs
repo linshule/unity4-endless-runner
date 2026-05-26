@@ -3,7 +3,7 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     public Transform target;
-    public Vector3 offset = new Vector3(0f, 8f, -12f);
+    public Vector3 offset = new Vector3(0f, 5f, -15f);
     public float smoothSpeed = 5f;
 
     void Start()
@@ -36,6 +36,6 @@ public class CameraFollow : MonoBehaviour
             desiredPos.z
         );
 
-        transform.LookAt(target.position + Vector3.up * 1f);
+        transform.LookAt(target.position + Vector3.up * 0.6f);
     }
 }
