@@ -4,8 +4,8 @@ using System.Collections;
 public class UltimateDash : MonoBehaviour
 {
     public PlayerController player;
-    public float dashDistance = 30f;
-    public float dashDuration = 0.4f;
+    public float dashDistance = 40f;
+    public float dashDuration = 0.35f;
 
     private bool isDashing = false;
     private CharacterController controller;
@@ -37,25 +37,28 @@ public class UltimateDash : MonoBehaviour
     IEnumerator PerformDash()
     {
         isDashing = true;
+        player.isInvincible = true;
 
         Vector3 startPos = player.transform.position;
-        Vector3 endPos = startPos + Vector3.forward * dashDistance;
+        float distancePerStep = dashDistance / (dashDuration / Time.fixedDeltaTime);
+        if (distancePerStep < 1f) distancePerStep = 1f;
 
-        // 冲刺轨迹（临时Cube）
+        // 轨迹特效
         GameObject trail = GameObject.CreatePrimitive(PrimitiveType.Cube);
         trail.name = "DashTrail";
-        trail.transform.position = startPos + Vector3.up * 1f;
-        trail.transform.localScale = new Vector3(0.5f, 1.5f, dashDistance);
         trail.transform.rotation = Quaternion.identity;
         Renderer tr = trail.GetComponent<Renderer>();
+        Shader transS = Shader.Find("Transparent/Diffuse");
+        if (transS == null) transS = Shader.Find("Diffuse");
         if (tr != null)
         {
-            tr.material.color = new Color(0f, 0.8f, 1f, 0.5f);
+            tr.material.shader = transS;
+            tr.material.color = new Color(0f, 0.8f, 1f, 0.4f);
         }
         Collider tc = trail.GetComponent<Collider>();
         if (tc != null) tc.enabled = false;
 
-        // 关闭碰撞（冲刺无敌）
+        // 关闭碰撞检测，穿墙冲刺
         if (controller != null)
             controller.detectCollisions = false;
 
@@ -64,21 +67,37 @@ public class UltimateDash : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = elapsed / dashDuration;
-            player.SetPosition(Vector3.Lerp(startPos, endPos, t));
 
-            // 轨迹淡出
+            Vector3 currentPos = Vector3.Lerp(startPos, startPos + Vector3.forward * dashDistance, t);
+            currentPos.y = startPos.y;
+            player.SetPosition(currentPos);
+
+            // 更新轨迹位置
+            trail.transform.position = startPos + Vector3.up * 1f + Vector3.forward * dashDistance * 0.5f * t;
+            trail.transform.localScale = new Vector3(0.5f, 1.5f, dashDistance * t);
             if (tr != null)
-                tr.material.color = new Color(0f, 0.8f, 1f, 0.5f * (1f - t));
+                tr.material.color = new Color(0f, 0.8f, 1f, 0.4f * (1f - t));
+
+            // 沿途收集金币
+            CollectCoinsAlongPath(currentPos);
 
             yield return null;
         }
 
+        Vector3 endPos = startPos + Vector3.forward * dashDistance;
+        endPos.y = startPos.y;
         player.SetPosition(endPos);
+        CollectCoinsAlongPath(endPos);
 
+        // 恢复碰撞
         if (controller != null)
             controller.detectCollisions = true;
 
-        // 冲刺推开列车
+        // 延迟取消无敌（防止恢复碰撞瞬间被判定碰撞）
+        yield return new WaitForSeconds(0.25f);
+        player.isInvincible = false;
+
+        // 推开列车
         TrainController train = FindObjectOfType<TrainController>();
         if (train != null)
         {
@@ -87,5 +106,26 @@ public class UltimateDash : MonoBehaviour
 
         GameObject.Destroy(trail, 0.3f);
         isDashing = false;
+    }
+
+    void CollectCoinsAlongPath(Vector3 pos)
+    {
+        Collider[] hits = Physics.OverlapSphere(pos, 2.5f);
+        foreach (Collider hit in hits)
+        {
+            CoinPickup coin = hit.GetComponent<CoinPickup>();
+            if (coin != null && hit.gameObject.activeInHierarchy)
+            {
+                GameManager gm = GameManager.Instance;
+                if (gm != null)
+                    gm.coinCount += coin.coinValue;
+
+                TrainController train = FindObjectOfType<TrainController>();
+                if (train != null)
+                    train.AddDistance(3f);
+
+                hit.gameObject.SetActive(false);
+            }
+        }
     }
 }

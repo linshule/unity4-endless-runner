@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour
 
     // === 死亡状态 ===
     public bool isDead = false;
+    public bool isInvincible = false;
     private float deathAnimTimer = 0f;
 
     // === 组件引用 ===
@@ -121,7 +122,7 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
 
         // 掉落即死检测
-        if (transform.position.y < -5f)
+        if (transform.position.y < -5f && !isInvincible)
         {
             GameManager gm2 = GameManager.Instance;
             if (gm2 != null) gm2.OnPlayerHitObstacle();
@@ -247,6 +248,7 @@ public class PlayerController : MonoBehaviour
 
         if (tag != null)
         {
+            if (isInvincible) return;
             GameManager gm = GameManager.Instance;
             if (gm != null && gm.state == GameState.Playing)
             {
