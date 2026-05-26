@@ -6,6 +6,8 @@ public class TerrainCollapse : MonoBehaviour
     public float minCollapseInterval = 8f;
     public float maxCollapseInterval = 15f;
     public float warningTime = 0.8f;
+    public float sinkDuration = 1.5f;
+    public float sinkDepth = 2f;
     public float trapDuration = 3f;
 
     private float nextCollapseTime;
@@ -39,65 +41,84 @@ public class TerrainCollapse : MonoBehaviour
         float laneX = (lane - 1) * 6f;
         float trapZ = player.transform.position.z + Random.Range(10f, 22f);
 
-        // 创建塌陷标记：贴在跑道表面的薄片
-        GameObject trap = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        trap.name = "CollapseTrap";
-        trap.transform.position = new Vector3(laneX, 0.27f, trapZ);
-        trap.transform.localScale = new Vector3(4.5f, 0.08f, 4.5f);
-        Renderer trapR = trap.GetComponent<Renderer>();
-        if (trapR != null) trapR.material.color = new Color(1f, 0.5f, 0f);
+        // 创建"地板碎片"——贴在跑道表面，模拟即将塌陷的地板
+        GameObject floorPiece = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        floorPiece.name = "CollapseFloor";
+        floorPiece.transform.position = new Vector3(laneX, 0.27f, trapZ);
+        floorPiece.transform.localScale = new Vector3(4.5f, 0.08f, 4.5f);
+        Renderer pieceR = floorPiece.GetComponent<Renderer>();
+        if (pieceR != null) pieceR.material.color = new Color(0.5f, 0.5f, 0.5f);
 
-        // 禁用默认碰撞体
-        Collider defCol = trap.GetComponent<Collider>();
-        if (defCol != null) defCol.enabled = false;
+        // 创建底下的黑洞标记
+        GameObject hole = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        hole.name = "CollapseHole";
+        hole.transform.position = new Vector3(laneX, 0.25f, trapZ);
+        hole.transform.localScale = new Vector3(4.5f, 0.04f, 4.5f);
+        Renderer holeR = hole.GetComponent<Renderer>();
+        if (holeR != null) holeR.material.color = new Color(0.05f, 0.05f, 0.05f);
+        Collider holeCol = hole.GetComponent<Collider>();
+        if (holeCol != null) holeCol.enabled = false;
+        hole.SetActive(false);
 
-        // 预警闪烁（黄色↔橙色）
+        // 预警：地板碎片黄色闪烁
         float warnEnd = Time.time + warningTime;
         while (Time.time < warnEnd)
         {
-            if (trapR != null)
+            if (pieceR != null)
             {
-                trapR.material.color = (Mathf.Floor(Time.time * 6f) % 2 == 0)
+                pieceR.material.color = (Mathf.Floor(Time.time * 6f) % 2 == 0)
                     ? Color.yellow
-                    : new Color(1f, 0.3f, 0f);
+                    : new Color(0.5f, 0.5f, 0.5f);
             }
             yield return null;
         }
 
-        // 变成致命陷阱：变红 + 添加即死触发器
-        if (trapR != null) trapR.material.color = new Color(0.8f, 0.1f, 0.1f);
+        // 下沉动画：地板碎片掉下去
+        float sinkStart = Time.time;
+        Vector3 origPos = floorPiece.transform.position;
+        while (Time.time - sinkStart < sinkDuration)
+        {
+            float t = (Time.time - sinkStart) / sinkDuration;
+            float y = Mathf.Lerp(origPos.y, origPos.y - sinkDepth, t * t);
+            floorPiece.transform.position = new Vector3(origPos.x, y, origPos.z);
+            yield return null;
+        }
 
-        BoxCollider bc = trap.AddComponent<BoxCollider>();
-        bc.size = new Vector3(4.5f, 1.5f, 4.5f);
-        bc.center = new Vector3(0f, 0.8f, 0f);
-        bc.isTrigger = true;
+        // 碎片沉到底部后隐藏
+        floorPiece.SetActive(false);
 
-        Rigidbody rb = trap.AddComponent<Rigidbody>();
-        rb.isKinematic = true;
-        rb.useGravity = false;
+        // 显示黑洞 + 添加致死碰撞体
+        hole.SetActive(true);
 
-        CollapseTrap ct = trap.AddComponent<CollapseTrap>();
+        // 用非触发器 + ObstacleTag 让 CharacterController 的 OnControllerColliderHit 检测到
+        BoxCollider killerCol = hole.AddComponent<BoxCollider>();
+        killerCol.size = new Vector3(4.5f, 1.5f, 4.5f);
+        killerCol.center = new Vector3(0f, 0.8f, 0f);
+        killerCol.isTrigger = false;
 
-        // 陷阱持续
+        ObstacleTag tag = hole.AddComponent<ObstacleTag>();
+        tag.isTrap = true;
+
+        // 致命陷阱持续
         yield return new WaitForSeconds(trapDuration);
 
-        // 恢复：移除陷阱组件，标记变暗消失
-        Destroy(ct);
-        Destroy(bc);
-        Destroy(rb);
+        // 恢复：移除陷阱碰撞体，黑洞渐隐
+        Destroy(killerCol);
+        Destroy(tag);
 
         float fadeStart = Time.time;
-        while (Time.time - fadeStart < 0.5f)
+        while (Time.time - fadeStart < 0.8f)
         {
-            if (trapR != null)
+            if (holeR != null)
             {
-                float t = (Time.time - fadeStart) / 0.5f;
-                trapR.material.color = Color.Lerp(new Color(0.8f, 0.1f, 0.1f), new Color(0.3f, 0.3f, 0.3f), t);
+                float t = (Time.time - fadeStart) / 0.8f;
+                holeR.material.color = Color.Lerp(new Color(0.05f, 0.05f, 0.05f), new Color(0.4f, 0.4f, 0.4f), t);
             }
             yield return null;
         }
 
-        GameObject.Destroy(trap);
+        GameObject.Destroy(hole);
+        GameObject.Destroy(floorPiece);
         isCollapsing = false;
     }
 
