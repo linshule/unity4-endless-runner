@@ -47,7 +47,7 @@ public class TerrainCollapse : MonoBehaviour
         GameObject floorPiece = GameObject.CreatePrimitive(PrimitiveType.Cube);
         floorPiece.name = "CollapseFloor";
         floorPiece.transform.position = new Vector3(laneX, 0.27f, baseZ + trapLength * 0.5f);
-        floorPiece.transform.localScale = new Vector3(4.5f, 0.08f, trapLength);
+        floorPiece.transform.localScale = new Vector3(3f, 0.08f, trapLength);
         Renderer pieceR = floorPiece.GetComponent<Renderer>();
         if (pieceR != null) pieceR.material.color = new Color(0.5f, 0.5f, 0.5f);
 
@@ -55,7 +55,7 @@ public class TerrainCollapse : MonoBehaviour
         GameObject hole = GameObject.CreatePrimitive(PrimitiveType.Cube);
         hole.name = "CollapseHole";
         hole.transform.position = new Vector3(laneX, 0.25f, baseZ + trapLength * 0.5f);
-        hole.transform.localScale = new Vector3(4.5f, 0.04f, trapLength);
+        hole.transform.localScale = new Vector3(3f, 0.04f, trapLength);
         Renderer holeR = hole.GetComponent<Renderer>();
         if (holeR != null) holeR.material.color = new Color(0.05f, 0.05f, 0.05f);
         Collider holeCol = hole.GetComponent<Collider>();
@@ -86,7 +86,7 @@ public class TerrainCollapse : MonoBehaviour
         // 黑洞现身 + 致命碰撞体
         hole.SetActive(true);
         BoxCollider killerCol = hole.AddComponent<BoxCollider>();
-        killerCol.size = new Vector3(4.5f, 1.5f, trapLength);
+        killerCol.size = new Vector3(3f, 1.5f, trapLength);
         killerCol.center = new Vector3(0f, 0.8f, 0f);
         killerCol.isTrigger = false;
 
