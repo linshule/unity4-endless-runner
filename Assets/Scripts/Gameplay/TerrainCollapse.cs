@@ -41,7 +41,7 @@ public class TerrainCollapse : MonoBehaviour
 
         // 塌陷区紧跟玩家脚下前方
         float baseZ = player.transform.position.z + Random.Range(2f, 6f);
-        float trapLength = 8f; // 足够长，即使跑过去也还在陷阱范围内
+        float trapLength = 3f; // 足够长，即使跑过去也还在陷阱范围内
 
         // 地板碎片
         GameObject floorPiece = GameObject.CreatePrimitive(PrimitiveType.Cube);
