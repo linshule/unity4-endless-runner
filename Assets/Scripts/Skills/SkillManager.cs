@@ -22,8 +22,8 @@ public class SkillManager : MonoBehaviour
             player = FindObjectOfType<PlayerController>();
 
         // 注册技能冷却
-        RegisterSkill("Dash", 45f);
-        RegisterSkill("Clone", 25f);
+        RegisterSkill("Dash", 20f);
+        RegisterSkill("Clone", 15f);
     }
 
     void Update()
