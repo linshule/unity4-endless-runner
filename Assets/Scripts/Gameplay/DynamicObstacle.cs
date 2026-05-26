@@ -13,7 +13,7 @@ public class DynamicObstacle : MonoBehaviour
         // 查找名含 "Cube" 或第一个子物体作为横杆
         foreach (Transform child in transform)
         {
-            if (child.name.Contains("Cube") || child.name.Contains("bar"))
+            if (child.name.ToLower().Contains("cube") || child.name.ToLower().Contains("bar") || child.name.ToLower().Contains("spinner"))
             {
                 barTransform = child;
                 break;

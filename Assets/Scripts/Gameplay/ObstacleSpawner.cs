@@ -114,9 +114,9 @@ public class ObstacleSpawner : MonoBehaviour
 
     int SelectObstacleType()
     {
-        if (difficultyLevel >= 7 && trapsUnlocked && Random.value < 0.12f)
+        if (difficultyLevel >= 5 && trapsUnlocked && Random.value < 0.12f)
             return 2;
-        if (difficultyLevel >= 4 && dynamicUnlocked && Random.value < 0.25f)
+        if (difficultyLevel >= 2 && dynamicUnlocked && Random.value < 0.25f)
             return 1;
         return 0;
     }
@@ -180,6 +180,14 @@ public class ObstacleSpawner : MonoBehaviour
                 if (objTag == null) objTag = obj.AddComponent<ObstacleTag>();
                 objTag.isTrap = prefabTag.isTrap;
                 objTag.isDynamic = prefabTag.isDynamic;
+
+            // 复制 DynamicObstacle 组件（旋转机关脚本）
+            DynamicObstacle prefabDyn = prefab.GetComponent<DynamicObstacle>();
+            if (prefabDyn != null)
+            {
+                DynamicObstacle objDyn = obj.GetComponent<DynamicObstacle>();
+                if (objDyn == null) obj.AddComponent<DynamicObstacle>();
+            }
             }
         }
 
@@ -322,7 +330,7 @@ public class ObstacleSpawner : MonoBehaviour
     public void SetDifficulty(int level)
     {
         difficultyLevel = Mathf.Clamp(level, 1, 10);
-        dynamicUnlocked = (difficultyLevel >= 4);
-        trapsUnlocked = (difficultyLevel >= 7);
+        dynamicUnlocked = (difficultyLevel >= 2);
+        trapsUnlocked = (difficultyLevel >= 5);
     }
 }
