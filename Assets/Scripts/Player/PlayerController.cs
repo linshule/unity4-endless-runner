@@ -219,6 +219,8 @@ public class PlayerController : MonoBehaviour
     {
         isDead = false;
         deathAnimTimer = 0f;
+        currentSpeed = baseSpeed;
+        verticalVelocity = 0f;
         // 恢复视觉
         if (bodyObj != null)
             bodyObj.transform.localScale = Vector3.one;
