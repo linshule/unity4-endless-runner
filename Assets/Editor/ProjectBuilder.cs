@@ -472,7 +472,7 @@ public class ProjectBuilder
         GameObject coin = CreatePrimSafe(PrimitiveType.Sphere);
         coin.transform.parent = obj.transform;
         coin.transform.localPosition = Vector3.zero;
-        coin.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+        coin.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 
         Renderer r = coin.GetComponent<Renderer>();
         if (r != null) SetCubeColor(coin, new Color(1f, 0.85f, 0.1f));

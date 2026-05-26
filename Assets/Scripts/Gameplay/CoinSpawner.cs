@@ -6,9 +6,9 @@ public class CoinSpawner : MonoBehaviour
     public PlayerController player;
     public GameObject coinPrefab;
 
-    public float spawnDistanceMin = 40f;
+    public float spawnDistanceMin = 25f;
     public float spawnDistanceMax = 100f;
-    public float floatCoinHeight = 5f;
+    public float floatCoinHeight = 3f;
     public float floatCoinChance = 0.35f;
 
     private float nextSpawnZ;
@@ -54,15 +54,18 @@ public class CoinSpawner : MonoBehaviour
     {
         GameObject coin = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         coin.name = "Coin";
-        coin.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+        coin.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 
         Renderer renderer = coin.GetComponent<Renderer>();
         if (renderer != null)
             renderer.material.color = Color.yellow;
 
-        Collider col = coin.GetComponent<Collider>();
+        SphereCollider col = coin.GetComponent<Collider>() as SphereCollider;
         if (col != null)
+        {
             col.isTrigger = true;
+            col.radius = 1.5f;
+        }
 
         // 必须加 Rigidbody，否则 CharacterController 不会触发 OnTriggerEnter
         Rigidbody rb = coin.AddComponent<Rigidbody>();
@@ -75,7 +78,7 @@ public class CoinSpawner : MonoBehaviour
 
     void SpawnCoinGroup()
     {
-        int count = Random.Range(2, 6);
+        int count = Random.Range(3, 8);
         float startZ = player.transform.position.z + Random.Range(spawnDistanceMin, spawnDistanceMax);
 
         for (int i = 0; i < count; i++)
@@ -85,7 +88,7 @@ public class CoinSpawner : MonoBehaviour
 
             int lane = Random.Range(0, 3);
             float x = (lane - 1) * 6f;
-            float z = startZ + i * 2.5f;
+            float z = startZ + i * 1.8f;
 
             bool isFloating = (Random.value < floatCoinChance);
             float y = isFloating ? floatCoinHeight : 1f;
