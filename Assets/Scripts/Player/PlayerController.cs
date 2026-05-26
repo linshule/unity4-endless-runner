@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
 
     // === 跳跃参数 ===
     public float jumpHeight = 25f;
-    public float gravity = 48f;
+    public float gravity = 60f;
     private float verticalVelocity = 0f;
     private bool isGrounded = true;
 
