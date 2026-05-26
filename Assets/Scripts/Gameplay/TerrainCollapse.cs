@@ -5,8 +5,8 @@ public class TerrainCollapse : MonoBehaviour
 {
     public float minCollapseInterval = 8f;
     public float maxCollapseInterval = 15f;
-    public float warningTime = 0.8f;
-    public float sinkDuration = 1.5f;
+    public float warningTime = 0.3f;
+    public float sinkDuration = 0.5f;
     public float sinkDepth = 2f;
     public float trapDuration = 3f;
 
@@ -37,43 +37,41 @@ public class TerrainCollapse : MonoBehaviour
     IEnumerator CollapseLane(int lane)
     {
         isCollapsing = true;
-
         float laneX = (lane - 1) * 6f;
-        float trapZ = player.transform.position.z + Random.Range(10f, 22f);
 
-        // 创建"地板碎片"——贴在跑道表面，模拟即将塌陷的地板
+        // 塌陷区紧跟玩家脚下前方
+        float baseZ = player.transform.position.z + Random.Range(2f, 6f);
+        float trapLength = 8f; // 足够长，即使跑过去也还在陷阱范围内
+
+        // 地板碎片
         GameObject floorPiece = GameObject.CreatePrimitive(PrimitiveType.Cube);
         floorPiece.name = "CollapseFloor";
-        floorPiece.transform.position = new Vector3(laneX, 0.27f, trapZ);
-        floorPiece.transform.localScale = new Vector3(4.5f, 0.08f, 4.5f);
+        floorPiece.transform.position = new Vector3(laneX, 0.27f, baseZ + trapLength * 0.5f);
+        floorPiece.transform.localScale = new Vector3(4.5f, 0.08f, trapLength);
         Renderer pieceR = floorPiece.GetComponent<Renderer>();
         if (pieceR != null) pieceR.material.color = new Color(0.5f, 0.5f, 0.5f);
 
-        // 创建底下的黑洞标记
+        // 黑洞（初始隐藏）
         GameObject hole = GameObject.CreatePrimitive(PrimitiveType.Cube);
         hole.name = "CollapseHole";
-        hole.transform.position = new Vector3(laneX, 0.25f, trapZ);
-        hole.transform.localScale = new Vector3(4.5f, 0.04f, 4.5f);
+        hole.transform.position = new Vector3(laneX, 0.25f, baseZ + trapLength * 0.5f);
+        hole.transform.localScale = new Vector3(4.5f, 0.04f, trapLength);
         Renderer holeR = hole.GetComponent<Renderer>();
         if (holeR != null) holeR.material.color = new Color(0.05f, 0.05f, 0.05f);
         Collider holeCol = hole.GetComponent<Collider>();
         if (holeCol != null) holeCol.enabled = false;
         hole.SetActive(false);
 
-        // 预警：地板碎片黄色闪烁
+        // 极快预警闪烁
         float warnEnd = Time.time + warningTime;
         while (Time.time < warnEnd)
         {
             if (pieceR != null)
-            {
-                pieceR.material.color = (Mathf.Floor(Time.time * 6f) % 2 == 0)
-                    ? Color.yellow
-                    : new Color(0.5f, 0.5f, 0.5f);
-            }
+                pieceR.material.color = (Mathf.Floor(Time.time * 10f) % 2 == 0) ? Color.yellow : new Color(0.5f, 0.5f, 0.5f);
             yield return null;
         }
 
-        // 下沉动画：地板碎片掉下去
+        // 迅速下沉
         float sinkStart = Time.time;
         Vector3 origPos = floorPiece.transform.position;
         while (Time.time - sinkStart < sinkDuration)
@@ -83,42 +81,32 @@ public class TerrainCollapse : MonoBehaviour
             floorPiece.transform.position = new Vector3(origPos.x, y, origPos.z);
             yield return null;
         }
-
-        // 碎片沉到底部后隐藏
         floorPiece.SetActive(false);
 
-        // 显示黑洞 + 添加致死碰撞体
+        // 黑洞现身 + 致命碰撞体
         hole.SetActive(true);
-
-        // 用非触发器 + ObstacleTag 让 CharacterController 的 OnControllerColliderHit 检测到
         BoxCollider killerCol = hole.AddComponent<BoxCollider>();
-        killerCol.size = new Vector3(4.5f, 1.5f, 4.5f);
+        killerCol.size = new Vector3(4.5f, 1.5f, trapLength);
         killerCol.center = new Vector3(0f, 0.8f, 0f);
         killerCol.isTrigger = false;
 
         ObstacleTag tag = hole.AddComponent<ObstacleTag>();
         tag.isTrap = true;
 
-        // 致命陷阱持续
         yield return new WaitForSeconds(trapDuration);
 
-        // 恢复：移除陷阱碰撞体，黑洞渐隐
+        // 恢复
         Destroy(killerCol);
         Destroy(tag);
-
         float fadeStart = Time.time;
-        while (Time.time - fadeStart < 0.8f)
+        while (Time.time - fadeStart < 0.5f)
         {
             if (holeR != null)
-            {
-                float t = (Time.time - fadeStart) / 0.8f;
-                holeR.material.color = Color.Lerp(new Color(0.05f, 0.05f, 0.05f), new Color(0.4f, 0.4f, 0.4f), t);
-            }
+                holeR.material.color = Color.Lerp(new Color(0.05f, 0.05f, 0.05f), new Color(0.4f, 0.4f, 0.4f), (Time.time - fadeStart) / 0.5f);
             yield return null;
         }
-
-        GameObject.Destroy(hole);
-        GameObject.Destroy(floorPiece);
+        Destroy(hole);
+        Destroy(floorPiece);
         isCollapsing = false;
     }
 
