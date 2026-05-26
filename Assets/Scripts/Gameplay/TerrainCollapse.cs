@@ -3,13 +3,10 @@ using System.Collections;
 
 public class TerrainCollapse : MonoBehaviour
 {
-    // === 塌陷参数 ===
     public float minCollapseInterval = 8f;
     public float maxCollapseInterval = 15f;
-    public float collapseDuration = 2f;
-    public float warningTime = 0.6f;
-    public float sinkDepth = 3f;
-    public float trapDuration = 3f; // 塌陷后陷阱持续多久
+    public float warningTime = 0.8f;
+    public float trapDuration = 3f;
 
     private float nextCollapseTime;
     private PlayerController player;
@@ -31,9 +28,7 @@ public class TerrainCollapse : MonoBehaviour
         {
             int lane = Random.Range(0, 3);
             StartCoroutine(CollapseLane(lane));
-
-            float interval = Random.Range(minCollapseInterval, maxCollapseInterval);
-            nextCollapseTime = Time.time + interval;
+            nextCollapseTime = Time.time + Random.Range(minCollapseInterval, maxCollapseInterval);
         }
     }
 
@@ -42,66 +37,67 @@ public class TerrainCollapse : MonoBehaviour
         isCollapsing = true;
 
         float laneX = (lane - 1) * 6f;
-        float patchZ = player.transform.position.z + Random.Range(8f, 18f);
+        float trapZ = player.transform.position.z + Random.Range(10f, 22f);
 
-        // 创建塌陷标记（5x5m 橙色方块，放在跑道表面）
-        GameObject patch = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        patch.name = "CollapsePatch";
-        patch.transform.position = new Vector3(laneX, 0.26f, patchZ);
-        patch.transform.localScale = new Vector3(5f, 0.1f, 5f);
-        Renderer patchR = patch.GetComponent<Renderer>();
-        if (patchR != null) patchR.material.color = new Color(1f, 0.4f, 0f);
+        // 创建塌陷标记：贴在跑道表面的薄片
+        GameObject trap = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        trap.name = "CollapseTrap";
+        trap.transform.position = new Vector3(laneX, 0.27f, trapZ);
+        trap.transform.localScale = new Vector3(4.5f, 0.08f, 4.5f);
+        Renderer trapR = trap.GetComponent<Renderer>();
+        if (trapR != null) trapR.material.color = new Color(1f, 0.5f, 0f);
 
-        // 橙色闪烁预警
+        // 禁用默认碰撞体
+        Collider defCol = trap.GetComponent<Collider>();
+        if (defCol != null) defCol.enabled = false;
+
+        // 预警闪烁（黄色↔橙色）
         float warnEnd = Time.time + warningTime;
         while (Time.time < warnEnd)
         {
-            if (patchR != null)
+            if (trapR != null)
             {
-                patchR.material.color = (Mathf.Floor(Time.time * 6f) % 2 == 0)
+                trapR.material.color = (Mathf.Floor(Time.time * 6f) % 2 == 0)
                     ? Color.yellow
-                    : new Color(1f, 0.4f, 0f);
+                    : new Color(1f, 0.3f, 0f);
             }
             yield return null;
         }
 
-        // 小块下沉动画
-        float sinkStart = Time.time;
-        Vector3 origPos = patch.transform.position;
-        while (Time.time - sinkStart < collapseDuration)
-        {
-            float t = (Time.time - sinkStart) / collapseDuration;
-            patch.transform.position = new Vector3(origPos.x, origPos.y - t * sinkDepth, origPos.z);
-            yield return null;
-        }
+        // 变成致命陷阱：变红 + 添加即死触发器
+        if (trapR != null) trapR.material.color = new Color(0.8f, 0.1f, 0.1f);
 
-        // 塌陷后：添加即死触发器（踩上去就死）
-        BoxCollider bc = patch.AddComponent<BoxCollider>();
-        bc.size = new Vector3(5f, 1f, 5f);
-        bc.center = new Vector3(0f, -sinkDepth + 0.5f, 0f);
+        BoxCollider bc = trap.AddComponent<BoxCollider>();
+        bc.size = new Vector3(4.5f, 1.5f, 4.5f);
+        bc.center = new Vector3(0f, 0.8f, 0f);
         bc.isTrigger = true;
 
-        // 添加陷阱检测脚本
-        CollapseTrap trap = patch.AddComponent<CollapseTrap>();
+        Rigidbody rb = trap.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
 
-        // 陷阱持续 trapDuration 秒
+        CollapseTrap ct = trap.AddComponent<CollapseTrap>();
+
+        // 陷阱持续
         yield return new WaitForSeconds(trapDuration);
 
-        // 恢复：移除陷阱，升起标记
-        Destroy(trap);
+        // 恢复：移除陷阱组件，标记变暗消失
+        Destroy(ct);
         Destroy(bc);
+        Destroy(rb);
 
-        float riseStart = Time.time;
-        Vector3 sunkPos = patch.transform.position;
-        while (Time.time - riseStart < 1f)
+        float fadeStart = Time.time;
+        while (Time.time - fadeStart < 0.5f)
         {
-            float t = (Time.time - riseStart) / 1f;
-            patch.transform.position = new Vector3(sunkPos.x, 
-                Mathf.Lerp(sunkPos.y, origPos.y, t), sunkPos.z);
+            if (trapR != null)
+            {
+                float t = (Time.time - fadeStart) / 0.5f;
+                trapR.material.color = Color.Lerp(new Color(0.8f, 0.1f, 0.1f), new Color(0.3f, 0.3f, 0.3f), t);
+            }
             yield return null;
         }
 
-        GameObject.Destroy(patch);
+        GameObject.Destroy(trap);
         isCollapsing = false;
     }
 
