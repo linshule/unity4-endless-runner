@@ -1,16 +1,16 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &190500
+--- !u!1 &179046
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 4
   m_Component:
-  - 4: {fileID: 490500}
-  - 33: {fileID: 3390500}
-  - 135: {fileID: 13590500}
-  - 23: {fileID: 2390500}
+  - 4: {fileID: 479046}
+  - 33: {fileID: 3379046}
+  - 135: {fileID: 13579046}
+  - 23: {fileID: 2379046}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -18,15 +18,15 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &190502
+--- !u!1 &179048
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 4
   m_Component:
-  - 4: {fileID: 490502}
-  - 114: {fileID: 11490500}
+  - 4: {fileID: 479048}
+  - 114: {fileID: 11479046}
   m_Layer: 0
   m_Name: Coin
   m_TagString: Untagged
@@ -34,37 +34,37 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &490500
+--- !u!4 &479046
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 190500}
+  m_GameObject: {fileID: 179046}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children: []
-  m_Father: {fileID: 490502}
+  m_Father: {fileID: 479048}
   m_RootOrder: 0
---- !u!4 &490502
+--- !u!4 &479048
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 190502}
+  m_GameObject: {fileID: 179048}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 490500}
+  - {fileID: 479046}
   m_Father: {fileID: 0}
   m_RootOrder: 0
---- !u!23 &2390500
+--- !u!23 &2379046
 Renderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 190500}
+  m_GameObject: {fileID: 179046}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -79,31 +79,31 @@ Renderer:
   m_ScaleInLightmap: 1
   m_SortingLayerID: 0
   m_SortingOrder: 0
---- !u!33 &3390500
+--- !u!33 &3379046
 MeshFilter:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 190500}
+  m_GameObject: {fileID: 179046}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &11490500
+--- !u!114 &11479046
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 190502}
+  m_GameObject: {fileID: 179048}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72d8abb47336e8942adf7f4e9b1a3bda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   coinValue: 1
---- !u!135 &13590500
+--- !u!135 &13579046
 SphereCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 190500}
+  m_GameObject: {fileID: 179046}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1
@@ -119,6 +119,6 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 190502}
+  m_RootGameObject: {fileID: 179048}
   m_IsPrefabParent: 1
   m_IsExploded: 1
