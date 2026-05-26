@@ -57,9 +57,14 @@ public class PhantomClone : MonoBehaviour
             {
                 if (clones[i] != null)
                 {
-                    Vector3 pos = clones[i].transform.position;
-                    pos.z = player.transform.position.z + cloneOffsetZ;
-                    clones[i].transform.position = pos;
+                    Rigidbody crb = clones[i].GetComponent<Rigidbody>();
+                    Vector3 newPos = new Vector3(
+                        clones[i].transform.position.x,
+                        player.transform.position.y,
+                        player.transform.position.z + cloneOffsetZ
+                    );
+                    if (crb != null) crb.MovePosition(newPos);
+                    else clones[i].transform.position = newPos;
 
                     // 淡出效果
                     float alpha = Mathf.Lerp(0.5f, 0.1f, elapsed / cloneDuration);
