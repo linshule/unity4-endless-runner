@@ -11,12 +11,10 @@ public class TerrainCollapse : MonoBehaviour
     public float sinkDepth = 3f;
 
     private float nextCollapseTime;
-    private TrackManager trackManager;
     private PlayerController player;
 
     void Start()
     {
-        trackManager = FindObjectOfType<TrackManager>();
         player = FindObjectOfType<PlayerController>();
         nextCollapseTime = Time.time + Random.Range(15f, 25f);
     }
@@ -41,71 +39,47 @@ public class TerrainCollapse : MonoBehaviour
     IEnumerator CollapseLane(int lane)
     {
         isCollapsing = true;
-        GameObject track = null;
-        if (trackManager != null)
+
+        float laneX = (lane - 1) * 6f;
+        float patchZ = player.transform.position.z + Random.Range(15f, 30f);
+
+        // 创建小块塌陷标记（4x4m，仅视觉）
+        GameObject patch = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        patch.name = "CollapsePatch";
+        patch.transform.position = new Vector3(laneX, 0.02f, patchZ);
+        patch.transform.localScale = new Vector3(4f, 0.06f, 4f);
+        Renderer patchR = patch.GetComponent<Renderer>();
+        if (patchR != null) patchR.material.color = new Color(0.3f, 0.3f, 0.1f);
+        Collider patchC = patch.GetComponent<Collider>();
+        if (patchC != null) patchC.enabled = false;
+
+        // 黄色闪烁预警
+        float warnEnd = Time.time + warningTime;
+        while (Time.time < warnEnd)
         {
-            track = trackManager.GetTrack(lane);
+            if (patchR != null)
+            {
+                patchR.material.color = (Mathf.Floor(Time.time * 4f) % 2 == 0)
+                    ? Color.yellow
+                    : new Color(0.3f, 0.3f, 0.1f);
+            }
+            yield return null;
         }
 
-        // 0.5s 黄色闪烁预警
-        if (track != null)
-        {
-            float warnEnd = Time.time + warningTime;
-            Renderer renderer = track.GetComponent<Renderer>();
-            Color originalColor = renderer != null ? renderer.material.color : Color.gray;
-
-            while (Time.time < warnEnd)
-            {
-                if (renderer != null)
-                {
-                    renderer.material.color = (Mathf.Floor(Time.time * 3f) % 2 == 0) 
-                        ? Color.yellow 
-                        : originalColor;
-                }
-                yield return null;
-            }
-
-            if (renderer != null)
-            {
-                renderer.material.color = originalColor;
-            }
-        }
-
-        // 下沉消失
+        // 小块下沉
         float sinkStart = Time.time;
-        Vector3 originalPos = (track != null) ? track.transform.position : Vector3.zero;
-
+        Vector3 origPos = patch.transform.position;
         while (Time.time - sinkStart < collapseDuration)
         {
-            if (track != null)
-            {
-                float progress = (Time.time - sinkStart) / collapseDuration;
-                float y = Mathf.Lerp(originalPos.y, originalPos.y - sinkDepth, progress);
-                track.transform.position = new Vector3(originalPos.x, y, originalPos.z);
-            }
+            float t = (Time.time - sinkStart) / collapseDuration;
+            patch.transform.position = new Vector3(origPos.x, origPos.y - t * sinkDepth, origPos.z);
             yield return null;
         }
 
-        // 保持下沉状态一段时间
+        // 停留一会后销毁
         yield return new WaitForSeconds(1f);
+        GameObject.Destroy(patch);
 
-        // 恢复升起
-        float riseStart = Time.time;
-        while (Time.time - riseStart < 1.5f)
-        {
-            if (track != null)
-            {
-                float progress = (Time.time - riseStart) / 1.5f;
-                float y = Mathf.Lerp(originalPos.y - sinkDepth, originalPos.y, progress);
-                track.transform.position = new Vector3(originalPos.x, y, originalPos.z);
-            }
-            yield return null;
-        }
-
-        if (track != null)
-        {
-            track.transform.position = originalPos;
-        }
         isCollapsing = false;
     }
 
