@@ -220,10 +220,11 @@ public class ObstacleSpawner : MonoBehaviour
         {
             float roll = Random.value;
             int subtype;
-            if (roll < 0.45f) subtype = 0;      // 石块 45%
-            else if (roll < 0.55f) subtype = 1; // 墙体 10%
-            else if (roll < 0.80f) subtype = 2; // 尖刺 25%
-            else subtype = 3;                    // 断台 20%
+            if (roll < 0.35f) subtype = 0;      // 石块 35%
+            else if (roll < 0.45f) subtype = 1; // 墙体 10%
+            else if (roll < 0.65f) subtype = 2; // 尖刺 20%
+            else if (roll < 0.80f) subtype = 3; // 断台 15%
+            else subtype = 4;                    // 低位横梁 20%（滑铲目标）
 
             if (subtype == 0)
             {
@@ -257,7 +258,7 @@ public class ObstacleSpawner : MonoBehaviour
             }
             else
             {
-                // 断台：显示黑色缺口标记 + 实际移除该轨道段碰撞体
+                // 断台：显示黑色缺口标记 + 实际移除该轨道段碰撞体 + 下方死亡触发
                 tag.isTrap = true; tag.isDynamic = false;
                 GameObject gapVis = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 gapVis.transform.parent = obj.transform;
@@ -268,6 +269,26 @@ public class ObstacleSpawner : MonoBehaviour
                 if (gapCol != null) gapCol.enabled = false;
                 if (trackManager != null && lane >= 0)
                     trackManager.DisableTrackColliderAt(lane, position.z);
+
+                // 缺口下方死亡碰撞体（玩家下坠时即死，不等 Y<-5）
+                GameObject deathBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                deathBar.name = "GapDeathBar";
+                deathBar.transform.parent = obj.transform;
+                deathBar.transform.localPosition = new Vector3(0f, -1.5f, 0f);
+                deathBar.transform.localScale = new Vector3(5f, 0.5f, 4f);
+                deathBar.GetComponent<Renderer>().material.color = new Color(0.05f, 0.05f, 0.05f);
+                ObstacleTag deathTag = deathBar.AddComponent<ObstacleTag>();
+                deathTag.isTrap = true;
+            }
+            else if (subtype == 4)
+            {
+                // 低位横梁：横跨 2-3 条轨道，需滑铲通过。站立碰撞即死，滑铲可躲
+                tag.isTrap = false; tag.isDynamic = false;
+                GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                bar.transform.parent = obj.transform;
+                bar.transform.localPosition = new Vector3(0f, 1.3f, 0f);
+                bar.transform.localScale = new Vector3(6f, 0.5f, 1f);
+                bar.GetComponent<Renderer>().material.color = new Color(1f, 0.5f, 0f);
             }
         }
         else if (type == 1)
@@ -289,7 +310,7 @@ public class ObstacleSpawner : MonoBehaviour
             int subtype = Random.Range(0, 2);
             if (subtype == 0)
             {
-                // 深坑：黑色平板标记 + 实际移除该轨道段碰撞体
+                // 深坑：黑色平板标记 + 实际移除该轨道段碰撞体 + 下方死亡触发
                 tag.isTrap = true; tag.isDynamic = false;
                 GameObject pitVis = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 pitVis.transform.parent = obj.transform;
@@ -300,6 +321,16 @@ public class ObstacleSpawner : MonoBehaviour
                 if (pitCol != null) pitCol.enabled = false;
                 if (trackManager != null && lane >= 0)
                     trackManager.DisableTrackColliderAt(lane, position.z);
+
+                // 深坑下方死亡碰撞体
+                GameObject deathBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                deathBar.name = "PitDeathBar";
+                deathBar.transform.parent = obj.transform;
+                deathBar.transform.localPosition = new Vector3(0f, -1.5f, 0f);
+                deathBar.transform.localScale = new Vector3(5f, 0.5f, 4f);
+                deathBar.GetComponent<Renderer>().material.color = new Color(0.05f, 0.05f, 0.05f);
+                ObstacleTag deathTag = deathBar.AddComponent<ObstacleTag>();
+                deathTag.isTrap = true;
             }
             else
             {

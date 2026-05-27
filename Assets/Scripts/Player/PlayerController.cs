@@ -192,6 +192,12 @@ public class PlayerController : MonoBehaviour
         controller.height = slideHeight;
         float newCenterY = originalCenterY - (originalHeight - slideHeight) * 0.5f;
         controller.center = new Vector3(0f, newCenterY, 0f);
+
+        // 视觉压扁
+        if (bodyObj != null)
+            bodyObj.transform.localScale = new Vector3(0.5f, 0.3f, 0.5f);
+        if (headObj != null)
+            headObj.transform.localPosition = new Vector3(0f, 0.6f, 0f);
     }
 
     void EndSlide()
@@ -200,6 +206,12 @@ public class PlayerController : MonoBehaviour
         slideCooldownTimer = slideCooldown;
         controller.height = originalHeight;
         controller.center = new Vector3(0f, originalCenterY, 0f);
+
+        // 恢复视觉
+        if (bodyObj != null)
+            bodyObj.transform.localScale = new Vector3(0.5f, 1f, 0.5f);
+        if (headObj != null)
+            headObj.transform.localPosition = new Vector3(0f, 1.8f, 0f);
     }
 
     void CheckGrounded()
