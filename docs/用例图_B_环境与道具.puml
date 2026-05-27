@@ -1,0 +1,52 @@
+﻿@startuml 子用例图B-赛道环境与道具
+' ============================================
+' 子用例图 B — 赛道环境与道具系统
+' 负责人 B：Track / Obstacle / Coin / Item / Train
+' ============================================
+
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam shadowing false
+skinparam handwritten false
+
+left to right direction
+
+actor "玩家" as Player
+
+package "子模块 B：赛道环境与道具系统" {
+
+  usecase "规避地形塌陷" as UC_Collapse
+  usecase "躲避静态障碍" as UC_Static
+  usecase "躲避旋转机关" as UC_Dynamic
+  usecase "规避陷阱" as UC_Trap
+
+  usecase "收集金币" as UC_Coin
+  usecase "拾取双倍分数" as UC_Double
+
+  usecase "查看得分" as UC_Score
+
+}
+
+Player --> UC_Collapse
+Player --> UC_Static
+Player --> UC_Dynamic
+Player --> UC_Trap
+Player --> UC_Coin
+Player --> UC_Double
+
+UC_Coin   ..> UC_Score : <<include>>
+UC_Double ..> UC_Score : <<include>>
+
+note right of UC_Collapse
+  核心脚本:
+  • TrackManager.cs
+  • TerrainCollapse.cs
+  • ObstacleSpawner.cs
+  • DynamicObstacle.cs
+  • TrapController.cs
+  • CoinSpawner.cs
+  • PowerUpManager.cs
+  • TrainController.cs
+end note
+
+@enduml

@@ -1,0 +1,163 @@
+﻿@startuml 时序图B-赛道环境与道具系统
+' ============================================
+' 时序图 B — 赛道环境与道具系统
+' 定位：业务逻辑说明（标准概括版）
+' 对应子用例图B：规避塌陷 / 躲避障碍 / 收集金币 / 拾取道具
+' ============================================
+
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 160
+skinparam BoxPadding 10
+skinparam ParticipantBackgroundColor white
+skinparam ParticipantBorderColor #333333
+skinparam SequenceLifeLineBorderColor #999999
+
+title **时序图 B：赛道环境与道具系统**
+
+actor "玩家" as Player
+
+participant "GameManager" as GM
+participant "PlayerController" as PC
+participant "TrackManager" as Track
+participant "TerrainCollapse" as TC
+participant "ObstacleSpawner" as OS
+participant "TrapController" as Trap
+participant "TrainController" as Train
+participant "CoinSpawner" as CS
+participant "PowerUpManager" as PUM
+participant "HUDController" as HUD
+
+== 1. 赛道生成与管理 ==
+
+loop 每帧 (Playing 状态)
+    Track -> Track : 在玩家前方铺设赛道段\n回收后方已离开的赛段
+    Track -> OS : 通知生成位置已更新
+    OS -> OS : 按难度生成障碍物
+    TC -> TC : 按倒计时触发地形塌陷
+    Train -> Train : 持续逼近玩家
+    CS -> CS : 随机生成金币组
+    PUM -> PUM : 按间隔尝试生成道具
+end
+
+== 2. 障碍物类型 ==
+
+alt 静态障碍物 (全程)
+    OS -> OS : 生成石块 / 墙体 / 尖刺 / 断台\n至少保留 1 条轨道可通行
+
+    alt 玩家碰撞障碍物
+        Player -> PC : 触及障碍物
+        PC -> GM : 通知障碍物碰撞
+        note right of GM
+            跳转到时序图 A
+            (游戏流程 — 角色死亡)
+        end note
+    end
+
+else 动态障碍 — 旋转机关 (≥ 500m)
+    OS -> OS : 生成旋转机关
+    activate OS
+    OS -> OS : 绕中心匀速旋转\n覆盖 2 条轨道
+
+    alt 玩家被击中
+        Player -> PC : 触及机关范围
+        PC -> GM : 通知障碍物碰撞
+        note right of GM
+            跳转到时序图 A
+            (游戏流程 — 角色死亡)
+        end note
+    end
+    deactivate OS
+
+else 陷阱机制 (≥ 1000m)
+    OS -> OS : 生成掉落深坑 / 即死区域
+    activate OS
+
+    alt 即死区域 (间歇激活)
+        OS -> OS : 红色脉冲缩放\n激活/停用交替
+        alt 激活期间玩家触碰
+            Player -> PC : 接触即死区域
+            PC -> GM : 通知陷阱碰撞
+        end
+    end
+
+    alt 掉落深坑 (固定缺口)
+        OS -> OS : 大段轨道缺口\n覆盖 2~3 条轨道
+        alt 玩家未跳跃落入
+            Player -> PC : 坠入深渊
+            PC -> GM : 通知陷阱碰撞
+        end
+    end
+
+    deactivate OS
+end
+
+== 3. 地形塌陷 ==
+
+alt 触发塌陷
+    TC -> TC : 随机选择轨道
+    TC -> TC : 预警闪烁 → 地板下沉消失
+    TC -> TC : 生成致命黑洞（持续数秒）
+
+    alt 玩家落入塌陷区
+        Player -> PC : 掉入黑洞
+        PC -> GM : 通知陷阱碰撞
+    end
+
+    TC -> TC : 数秒后恢复地面
+end
+
+== 4. 金币收集 ==
+
+alt 玩家直接拾取
+    Player -> PC : 触碰金币
+    PC -> CS : 触发拾取
+    activate CS
+    CS -> GM : 增加金币计数
+    CS --> PC : 金币已回收
+    deactivate CS
+    GM -> HUD : 更新金币数
+
+else 幻影分身拾取
+    note over CS
+        跳转到时序图 C
+        (技能系统 — 幻影分身)
+    end note
+end
+
+== 5. 双倍分数道具 ==
+
+alt 玩家拾取道具
+    Player -> PC : 触碰双倍分数道具
+    PC -> PUM : 激活双倍分数
+    activate PUM
+    PUM -> GM : 分数倍率提升（限时）
+    PUM -> HUD : 显示 x2 图标及倒计时
+
+    loop 持续时间内
+        PUM -> HUD : 更新倒计时进度
+    end
+
+    PUM -> GM : 恢复分数倍率
+    PUM -> HUD : 隐藏 x2 图标
+    deactivate PUM
+end
+
+== 6. 列车追击距离 ==
+
+loop 每帧
+    Train -> Train : 持续逼近
+    Train -> HUD : 更新列车距离条
+
+    alt 距离危险（< 30m）
+        HUD -> HUD : 画面边缘红光增强
+        Train -> GM : 难度不再提升
+    end
+
+    alt 距离追上（< 10m）
+        Train -> GM : 通知追上即死
+    end
+end
+
+@enduml

@@ -1,0 +1,222 @@
+﻿@startuml 时序图D-无尽跑酷游戏系统总览
+' ============================================
+' 时序图 D — 无尽跑酷游戏系统总览
+' 定位：业务逻辑说明（标准概括版）
+' 对应总体用例图：全生命周期整合视图
+' ============================================
+
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 170
+skinparam BoxPadding 10
+skinparam ParticipantBackgroundColor white
+skinparam ParticipantBorderColor #333333
+skinparam SequenceLifeLineBorderColor #999999
+
+title **时序图 D：无尽跑酷游戏系统总览**\n<size:12>整合游戏流程 · 角色操控 · 环境交互 · 道具收集 · 技能释放</size>
+
+actor "玩家" as Player
+
+participant "UIManager" as UI
+participant "HUDController" as HUD
+participant "GameManager" as GM
+participant "PlayerController" as PC
+participant "AdaptiveDifficulty" as AD
+participant "TrackManager" as Track
+participant "TerrainCollapse" as TC
+participant "ObstacleSpawner" as OS
+participant "TrainController" as Train
+participant "CoinSpawner" as CS
+participant "PowerUpManager" as PUM
+participant "SkillManager" as SM
+participant "TimeRewind" as TR
+participant "UltimateDash" as UD
+participant "PhantomClone" as PhC
+
+== 阶段 1：启动与主菜单 ==
+
+Player -> UI : 进入游戏
+UI -> GM : 加载主菜单
+GM --> UI : 已加载（含持久化数据）
+UI -> UI : 显示标题、最高分、金币、开始按钮
+
+== 阶段 2：开始游戏 ==
+
+Player -> UI : 点击"开始游戏"
+UI -> GM : 请求开始
+activate GM
+GM -> AD : 重置难度统计
+GM -> PC : 重置角色状态
+GM -> GM : 进入 Playing 状态
+
+deactivate GM
+
+== 阶段 3：游戏运行主循环 ==
+
+group 角色操控
+
+    loop 每帧
+        alt 变道操作
+            Player -> PC : 变道方向
+            PC -> PC : 切换轨道
+        end
+
+        alt 跳跃操作
+            Player -> PC : 跳跃
+            PC -> PC : 腾空跨越
+        end
+
+        alt 滑铲操作
+            Player -> PC : 滑铲
+            PC -> PC : 压扁通过
+        end
+
+        PC -> PC : 前进 + 重力 + 地面检测
+    end
+
+end
+
+group 环境交互
+
+    loop 每帧
+        Track -> Track : 生成/回收赛道
+        OS -> OS : 按难度生成障碍物
+        TC -> TC : 定时触发地形塌陷
+        Train -> Train : 列车持续逼近
+        CS -> CS : 随机生成金币
+        PUM -> PUM : 间歇生成道具
+    end
+
+    alt 碰撞障碍物/陷阱/列车
+        PC -> GM : 通知死亡事件
+        note over GM: → 进入阶段 4
+    end
+
+end
+
+group 道具收集
+
+    alt 拾取金币
+        Player -> PC : 触碰金币
+        PC -> GM : 增加金币计数
+        GM -> HUD : 刷新金币显示
+    end
+
+    alt 拾取双倍分数
+        Player -> PC : 触碰道具
+        PC -> PUM : 激活倍率效果
+        PUM -> GM : 分数翻倍（限时）
+        PUM -> HUD : 显示倒计时进度条
+        PUM -> GM : 恢复分数倍率
+        PUM -> HUD : 隐藏图标
+    end
+
+end
+
+group 技能释放
+
+    alt 虚空冲刺
+        Player -> UD : 按技能键
+        UD -> SM : 检查冷却
+        SM --> UD : 允许/拒绝
+        UD -> UD : 冲刺 + 无敌 + 清障
+        UD -> Train : 推后列车
+    end
+
+    alt 幻影分身
+        Player -> PhC : 按技能键
+        PhC -> SM : 检查冷却
+        SM --> PhC : 允许/拒绝
+        PhC -> PhC : 三轨道分身拾金币
+    end
+
+    alt 时间回溯解锁
+        GM -> GM : 分数达到条件
+        GM -> HUD : 通知解锁
+        GM -> TR : 激活回溯能力
+    end
+
+end
+
+group 计分与自适应难度
+
+    loop 每帧
+        GM -> GM : 累计奔跑分数
+        GM -> HUD : 更新实时分数
+        AD -> AD : 监测玩家近期表现
+        AD -> OS : 调整障碍密度
+        AD -> TC : 调整塌陷频率
+        AD -> Train : 调整列车速度
+    end
+
+end
+
+== 阶段 4：角色死亡 ==
+
+PC -> GM : 通知死亡
+activate GM
+GM -> PC : 播放死亡动画
+GM -> HUD : 通知死亡
+
+alt 回溯可用
+
+    GM -> GM : 等待玩家抉择
+
+    alt 玩家点击回溯
+        Player -> TR : 触发时间回溯
+        TR -> TR : 无敌 + 回退位置
+        TR -> GM : 通知回溯完成
+        GM -> PC : 复活角色
+        GM -> Train : 恢复列车距离
+        note over GM: → 回到阶段 3
+
+    else 超时
+        GM -> GM : 进入结算
+    end
+
+else 回溯不可用
+    GM -> GM : 进入结算
+end
+
+deactivate GM
+
+== 阶段 5：游戏结算 ==
+
+activate GM
+GM -> GM : 更新最高分与总金币
+GM -> HUD : 通知游戏结束
+GM -> UI : 显示结算界面
+
+alt 重新开始
+    Player -> UI : 点击重新开始
+    UI -> GM : 重新加载场景
+    note over GM: → 回到阶段 2
+
+else 返回主菜单
+    Player -> UI : 返回主菜单
+    UI -> GM : 加载主菜单场景
+    note over GM: → 回到阶段 1
+end
+
+deactivate GM
+
+== 补充：暂停/恢复 ==
+
+loop Playing 状态
+    alt 按下 Esc
+        Player -> GM : 暂停
+        GM -> GM : 暂停游戏
+        GM -> UI : 显示暂停界面
+
+        alt 继续游戏
+            Player -> GM : 恢复
+            GM -> GM : 恢复运行
+        else 返回主菜单
+            Player -> GM : 退出
+            GM -> GM : 加载主菜单
+        end
+    end
+end
+
+@enduml

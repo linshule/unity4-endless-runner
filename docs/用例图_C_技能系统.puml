@@ -1,0 +1,61 @@
+@startuml 子用例图C-技能系统
+' ============================================
+' 子用例图 C — 技能系统
+' 负责人 C：SkillManager / TimeRewind / UltimateDash / PhantomClone
+' ============================================
+
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam shadowing false
+skinparam handwritten false
+
+left to right direction
+
+actor "玩家" as Player
+
+package "子模块 C：技能系统" {
+
+  usecase "释放技能" as UC_Skill
+  usecase "虚空冲刺" as UC_Dash
+  usecase "幻影分身" as UC_Clone
+
+  usecase "角色死亡" as UC_Dead
+  usecase "时间回溯" as UC_Rewind
+
+}
+
+Player --> UC_Skill
+Player --> UC_Rewind
+
+UC_Dash  --|> UC_Skill
+UC_Clone --|> UC_Skill
+
+UC_Rewind ..> UC_Dead : <<extend>>
+
+note right of UC_Rewind
+  **解锁**: 达到 1500 分
+  **触发**: 角色死亡时手动点击
+  **效果**: 回退至碰撞前 2 秒
+  **限制**: 每局 1 次，列车追上不可用
+end note
+
+note bottom of UC_Dash
+  **触发**: E 键  |  **冷却**: 45s
+  **效果**: 前冲 30m + 清障 + 无敌
+end note
+
+note bottom of UC_Clone
+  **触发**: R 键  |  **冷却**: 25s
+  **效果**: 三轨道各生成分身，持续 6 秒拾取金币
+end note
+
+note right of UC_Skill
+  核心脚本:
+  • SkillManager.cs
+  • TimeRewind.cs
+  • UltimateDash.cs
+  • PhantomClone.cs
+  • AdaptiveDifficulty.cs
+end note
+
+@enduml

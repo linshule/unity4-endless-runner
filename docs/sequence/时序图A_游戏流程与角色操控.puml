@@ -1,0 +1,178 @@
+﻿@startuml 时序图A-游戏流程与角色操控
+' ============================================
+' 时序图 A — 游戏流程与角色操控
+' 定位：业务逻辑说明（标准概括版）
+' 对应子用例图A：开始游戏 / 操控角色 / 死亡 / 结算 / 重新开始
+' ============================================
+
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 160
+skinparam BoxPadding 10
+skinparam ParticipantBackgroundColor white
+skinparam ParticipantBorderColor #333333
+skinparam SequenceLifeLineBorderColor #999999
+
+title **时序图 A：游戏流程与角色操控**
+
+actor "玩家" as Player
+
+participant "UIManager" as UI
+participant "HUDController" as HUD
+participant "GameManager" as GM
+participant "PlayerController" as PC
+participant "TrainController" as Train
+
+== 1. 开始游戏 ==
+
+Player -> UI : 点击"开始游戏"
+activate UI
+UI -> GM : 请求开始游戏
+activate GM
+GM --> UI : 已启动，切换到 Playing
+UI -> UI : 隐藏主菜单，显示 HUD
+deactivate UI
+GM -> PC : 重置角色状态
+activate PC
+PC --> GM : 就绪
+deactivate PC
+deactivate GM
+
+== 2. 游戏主循环 ==
+
+loop 每帧 (Playing 状态)
+
+    GM -> HUD : 更新分数及金币显示
+    activate HUD
+    HUD --> GM : 已刷新
+    deactivate HUD
+
+    alt 变道操作 (A/D/←/→)
+        Player -> PC : 输入变道方向
+        PC -> PC : 切换至相邻轨道
+        PC --> Player : 位置已变更
+    end
+
+    alt 跳跃操作 (Space/W/↑)
+        Player -> PC : 输入跳跃
+        PC -> PC : 执行跳跃（需地面状态）
+        PC --> Player : 跳跃完成
+    end
+
+    alt 滑铲操作 (S/↓/Ctrl)
+        Player -> PC : 输入滑铲
+        PC -> PC : 压扁碰撞体，持续滑行
+        PC --> Player : 滑铲完成
+    end
+
+    PC -> PC : 向前移动 + 重力下落
+    PC -> PC : 地面检测 + 掉落判定
+
+end
+
+== 3. 暂停 / 恢复 ==
+
+alt 按下 Esc
+    Player -> GM : 请求暂停
+    activate GM
+    GM -> GM : 暂停游戏
+    GM -> UI : 显示暂停界面
+    activate UI
+    UI --> GM : 已显示
+
+    alt 点击"继续游戏" / 再按 Esc
+        Player -> GM : 请求恢复
+        GM -> GM : 恢复游戏
+        GM -> UI : 隐藏暂停界面
+    else 点击"返回主菜单"
+        Player -> GM : 返回主菜单
+        GM -> GM : 加载主菜单场景
+    end
+
+    deactivate UI
+    deactivate GM
+end
+
+== 4. 碰撞障碍物 — 角色死亡 ==
+
+Player -> PC : 碰撞到障碍物
+activate PC
+PC -> GM : 通知碰撞死亡
+activate GM
+GM --> PC : 执行死亡处理
+deactivate PC
+
+GM -> PC : 播放死亡动画
+activate PC
+PC --> GM : 动画完成
+deactivate PC
+
+GM -> HUD : 通知玩家死亡
+activate HUD
+HUD --> GM : 已响应
+deactivate HUD
+
+alt 回溯已解锁 且 未使用
+    GM -> GM : 等待玩家选择（限时）
+
+    alt 玩家点击回溯
+        Player -> GM : 触发时间回溯
+        note right of GM
+            跳转到时序图 C
+            (技能系统 — 时间回溯)
+        end note
+
+    else 超时 / 列车追上
+        GM -> GM : 进入结算流程
+    end
+
+else 回溯不可用
+    GM -> GM : 进入结算流程
+end
+
+deactivate GM
+
+== 5. 游戏结束 — 结算 ==
+
+activate GM
+GM -> GM : 比较并存储最高分
+GM -> HUD : 通知游戏结束
+activate HUD
+HUD --> GM : 已记录
+deactivate HUD
+
+GM -> UI : 显示结算界面（分数/最高分/金币）
+activate UI
+
+alt 点击"重新开始"
+    Player -> UI : 请求重新开始
+    UI -> GM : 重新加载场景
+    deactivate UI
+    deactivate GM
+
+else 点击"返回主菜单"
+    Player -> UI : 返回主菜单
+    UI -> GM : 加载主菜单场景
+    deactivate UI
+    deactivate GM
+end
+
+== 6. 列车追击 ==
+
+loop 每帧 (Playing 状态)
+    Train -> Train : 持续逼近玩家
+    Train -> HUD : 更新列车距离条
+    activate HUD
+    HUD --> Train : 已刷新
+    deactivate HUD
+
+    alt 列车追上玩家
+        Train -> GM : 通知追上即死
+        activate GM
+        GM -> GM : 进入死亡流程
+        deactivate GM
+    end
+end
+
+@enduml

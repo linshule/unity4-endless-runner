@@ -1,0 +1,171 @@
+﻿@startuml 时序图C-技能系统
+' ============================================
+' 时序图 C — 技能系统
+' 定位：业务逻辑说明（标准概括版）
+' 对应子用例图C：时间回溯 / 虚空冲刺 / 幻影分身
+' ============================================
+
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 160
+skinparam BoxPadding 10
+skinparam ParticipantBackgroundColor white
+skinparam ParticipantBorderColor #333333
+skinparam SequenceLifeLineBorderColor #999999
+
+title **时序图 C：技能系统**
+
+actor "玩家" as Player
+
+participant "HUDController" as HUD
+participant "GameManager" as GM
+participant "SkillManager" as SM
+participant "TimeRewind" as TR
+participant "UltimateDash" as UD
+participant "PhantomClone" as PhC
+participant "PlayerController" as PC
+participant "TrainController" as Train
+
+== 1. 时间回溯 — 解锁 ==
+
+loop 每帧 (Playing)
+    GM -> GM : 累积奔跑分数
+
+    alt 分数达到解锁线
+        GM -> HUD : 通知回溯已解锁
+        HUD --> GM : 已更新 UI
+        GM -> TR : 激活回溯能力
+        TR --> GM : 回溯已就绪
+    end
+end
+
+== 2. 时间回溯 — 持续记录 ==
+
+loop 循环记录 (存活期间)
+    TR -> TR : 定时记录角色位置快照
+end
+
+== 3. 时间回溯 — 触发与执行 ==
+
+PC -> GM : 通知碰撞死亡
+activate GM
+GM -> PC : 播放死亡动画
+deactivate GM
+
+alt 回溯可用 且 未被列车追上
+    GM -> HUD : 显示回溯按钮并倒计时
+    activate HUD
+    HUD --> GM : 已显示
+
+    alt 玩家点击回溯（或按对应键）
+        Player -> TR : 触发时间回溯
+        activate TR
+        TR -> TR : 进入回溯状态（无敌）
+        TR -> GM : 通知回溯开始
+        activate GM
+        GM -> PC : 复活角色
+        GM -> Train : 恢复列车距离
+        deactivate GM
+
+        TR -> TR : 查找 2 秒前的位置快照
+        TR -> TR : 执行倒放动画
+        TR -> PC : 移动角色至快照位置
+        TR -> TR : 回溯结束，解除无敌
+        TR --> Player : 回溯完成，继续游戏
+        deactivate TR
+
+    else 超时未点击
+        GM -> GM : 进入结算流程
+    end
+
+    deactivate HUD
+
+else 回溯不可用
+    GM -> GM : 进入结算流程
+end
+
+== 4. 虚空冲刺 ==
+
+Player -> UD : 按下技能键
+activate UD
+UD -> SM : 请求使用虚空冲刺
+activate SM
+
+alt 冷却完毕
+    SM --> UD : 允许使用，开始冷却
+    deactivate SM
+
+    UD -> PC : 设置无敌 + 关闭碰撞检测
+    UD -> UD : 向前冲刺一段距离\n沿途自动收集金币
+    UD -> PC : 恢复碰撞检测
+    UD -> PC : 延迟解除无敌
+    UD -> Train : 推后列车距离
+    UD -> HUD : 更新技能冷却 UI
+
+    loop 冷却期间
+        SM -> HUD : 更新冷却进度
+    end
+
+    UD --> Player : 冲刺结束
+    deactivate UD
+
+else 冷却中
+    SM --> UD : 不可用
+    deactivate SM
+    UD --> Player : 技能尚未就绪
+    deactivate UD
+end
+
+== 5. 幻影分身 ==
+
+Player -> PhC : 按下技能键
+activate PhC
+PhC -> SM : 请求使用幻影分身
+activate SM
+
+alt 冷却完毕
+    SM --> PhC : 允许使用，开始冷却
+    deactivate SM
+
+    PhC -> PhC : 三条轨道各生成半透明分身
+    PhC -> PhC : 分身跟随玩家同步奔跑
+
+    loop 分身持续期间
+        PhC -> PhC : 同步分身位置
+        alt 分身碰撞金币
+            PhC -> GM : 增加金币计数
+            PhC -> PhC : 回收金币
+        end
+        PhC -> PhC : 分身逐渐淡出
+    end
+
+    PhC -> PhC : 销毁三个分身
+    PhC -> HUD : 更新技能冷却 UI
+
+    loop 冷却期间
+        SM -> HUD : 更新冷却进度
+    end
+
+    PhC --> Player : 分身结束
+    deactivate PhC
+
+else 冷却中
+    SM --> PhC : 不可用
+    deactivate SM
+    PhC --> Player : 技能尚未就绪
+    deactivate PhC
+end
+
+== 6. 技能冷却管理 ==
+
+loop 每帧
+    SM -> SM : 遍历所有技能冷却计时
+    SM -> HUD : 更新各技能冷却状态
+
+    alt 冷却归零
+        SM -> HUD : 图标亮起（技能就绪）
+    end
+end
+
+@enduml

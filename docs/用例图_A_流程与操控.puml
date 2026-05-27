@@ -1,0 +1,59 @@
+@startuml 子用例图A-游戏流程与角色操控
+' ============================================
+' 子用例图 A — 游戏流程与角色操控
+' 负责人 A：GameManager / PlayerController / HUD / UI
+' ============================================
+
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam shadowing false
+skinparam handwritten false
+
+left to right direction
+
+actor "玩家" as Player
+
+package "子模块 A：游戏流程与角色操控" {
+
+  usecase "开始游戏" as UC_Start
+  usecase "暂停/恢复" as UC_Pause
+  usecase "操控角色" as UC_Control
+  usecase "跳跃" as UC_Jump
+  usecase "滑铲" as UC_Slide
+  usecase "左右变道" as UC_Lane
+
+  usecase "角色死亡" as UC_Dead
+  usecase "查看得分" as UC_Score
+  usecase "进入结算界面" as UC_Over
+  usecase "查看最高分" as UC_High
+  usecase "重新开始" as UC_Restart
+  usecase "返回主菜单" as UC_Menu
+
+}
+
+Player --> UC_Start
+Player --> UC_Control
+Player --> UC_Pause
+Player --> UC_Score
+Player --> UC_Restart
+Player --> UC_Menu
+
+UC_Jump  ..> UC_Control : <<extend>>
+UC_Slide ..> UC_Control : <<extend>>
+UC_Lane  ..> UC_Control : <<extend>>
+
+UC_High   ..> UC_Over  : <<extend>>
+UC_Restart ..> UC_Over : <<extend>>
+UC_Menu   ..> UC_Over  : <<extend>>
+
+UC_Dead ..> UC_Over : <<include>>
+
+note right of UC_Control
+  核心脚本:
+  • GameManager.cs
+  • PlayerController.cs
+  • UIManager.cs
+  • HUDController.cs
+end note
+
+@enduml

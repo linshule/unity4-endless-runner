@@ -1,0 +1,97 @@
+﻿@startuml 无尽跑酷游戏-用例图
+' ============================================
+' 无尽跑酷游戏 — 用例图（终版）
+' Unity 4.6.8 / C# Mono / v3.0
+' ============================================
+
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam shadowing false
+skinparam handwritten false
+skinparam ActorBackgroundColor #E3F2FD
+skinparam ActorBorderColor #1565C0
+skinparam UsecaseBackgroundColor #FFF3E0
+skinparam UsecaseBorderColor #E65100
+
+left to right direction
+
+actor "玩家" as Player
+
+package "无尽跑酷游戏系统" {
+
+  usecase "开始游戏" as UC_Start
+  usecase "暂停/恢复" as UC_Pause
+  usecase "操控角色" as UC_Control
+  usecase "跳跃" as UC_Jump
+  usecase "滑铲" as UC_Slide
+  usecase "左右变道" as UC_Lane
+  usecase "规避地形塌陷" as UC_Collapse
+
+  usecase "收集金币" as UC_Coin
+  usecase "拾取双倍分数" as UC_Double
+
+  usecase "释放技能" as UC_Skill
+  usecase "虚空冲刺" as UC_Dash
+  usecase "幻影分身" as UC_Clone
+
+  usecase "角色死亡" as UC_Dead
+  usecase "时间回溯" as UC_Rewind
+
+  usecase "查看得分" as UC_Score
+  usecase "进入结算界面" as UC_Over
+  usecase "查看最高分" as UC_High
+  usecase "重新开始" as UC_Restart
+  usecase "返回主菜单" as UC_Menu
+
+}
+
+Player --> UC_Start
+Player --> UC_Control
+Player --> UC_Pause
+Player --> UC_Skill
+Player --> UC_Rewind
+Player --> UC_Score
+Player --> UC_Restart
+Player --> UC_Menu
+
+' === 扩展关系 ===
+UC_Jump     ..> UC_Control : <<extend>>
+UC_Slide    ..> UC_Control : <<extend>>
+UC_Lane     ..> UC_Control : <<extend>>
+UC_Collapse ..> UC_Control : <<extend>>
+
+UC_Coin   ..> UC_Control : <<extend>>
+UC_Double ..> UC_Control : <<extend>>
+
+UC_Rewind ..> UC_Dead    : <<extend>>
+UC_High   ..> UC_Over    : <<extend>>
+UC_Restart ..> UC_Over   : <<extend>>
+UC_Menu   ..> UC_Over    : <<extend>>
+
+' === 继承关系 ===
+UC_Dash  --|> UC_Skill
+UC_Clone --|> UC_Skill
+
+' === 包含关系 ===
+UC_Coin   ..> UC_Score : <<include>>
+UC_Double ..> UC_Score : <<include>>
+UC_Dead   ..> UC_Over  : <<include>>
+
+note right of UC_Rewind
+  **解锁**: 达到 1500 分
+  **触发**: 角色死亡时手动触发
+  **效果**: 回退至碰撞前 2 秒
+  **限制**: 每局 1 次，列车追上不可用
+end note
+
+note bottom of UC_Dash
+  **冷却**: 45s
+  **效果**: 前冲 30m + 清障 + 无敌
+end note
+
+note bottom of UC_Clone
+  **冷却**: 25s
+  **效果**: 三轨道生成分身，持续 6 秒拾取金币
+end note
+
+@enduml

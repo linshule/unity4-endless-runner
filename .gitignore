@@ -17,6 +17,9 @@
 Thumbs.db
 Desktop.ini
 
+# Generated images
+*.png
+
 # IDE
 *.sln
 *.csproj
