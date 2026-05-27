@@ -160,6 +160,9 @@ public class GameManager : MonoBehaviour
         state = GameState.Dead;
         deathFlashTimer = deathFlashDuration;
 
+        TrainController train = FindObjectOfType<TrainController>();
+        if (train != null) train.ApplyDeathPenalty();
+
         if (HUDController.Instance != null)
             HUDController.Instance.OnPlayerDead();
 
@@ -202,6 +205,7 @@ public class GameManager : MonoBehaviour
         if (state != GameState.Playing) return;
         player.Die();
         state = GameState.Dead;
+        rewindUsed = true;
         deathFlashTimer = deathFlashDuration;
         StartCoroutine(EndGameDelay(1.5f));
     }

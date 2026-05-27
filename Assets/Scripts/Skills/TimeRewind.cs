@@ -92,6 +92,19 @@ public class TimeRewind : MonoBehaviour
             }
         }
 
+        // 黑白倒放特效：存原始值
+        Camera cam = Camera.main;
+        Color origCameraColor = cam != null ? cam.backgroundColor : Color.black;
+        Color origFogColor = RenderSettings.fogColor;
+        bool origFog = RenderSettings.fog;
+        float origFogDensity = RenderSettings.fogDensity;
+
+        if (cam != null)
+            cam.backgroundColor = Color.black;
+        RenderSettings.fog = true;
+        RenderSettings.fogColor = Color.white;
+        RenderSettings.fogDensity = 0.05f;
+
         // 黑白倒放
         Vector3 startPos = player.transform.position;
         Vector3 endPos = targetSnap.position;
@@ -102,10 +115,23 @@ public class TimeRewind : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / rewindDuration;
             player.SetPosition(Vector3.Lerp(startPos, endPos, t));
+
+            // 渐回颜色
+            if (cam != null)
+                cam.backgroundColor = Color.Lerp(Color.black, origCameraColor, t);
+            RenderSettings.fogColor = Color.Lerp(Color.white, origFogColor, t);
             yield return null;
         }
 
         player.SetPosition(endPos);
+
+        // 恢复视觉
+        if (cam != null)
+            cam.backgroundColor = origCameraColor;
+        RenderSettings.fog = origFog;
+        RenderSettings.fogColor = origFogColor;
+        RenderSettings.fogDensity = origFogDensity;
+
         isRewinding = false;
 
         // 延迟取消无敌，确保回溯后不会立即被碰撞检测杀死

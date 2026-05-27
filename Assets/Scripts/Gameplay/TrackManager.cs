@@ -83,7 +83,6 @@ public class TrackManager : MonoBehaviour
 
     public GameObject GetTrack(int lane)
     {
-        // 返回玩家脚下的那段
         if (lane < 0 || lane >= 3) return null;
         float playerZ = player != null ? player.transform.position.z : 0f;
         foreach (GameObject seg in segments[lane])
@@ -94,5 +93,31 @@ public class TrackManager : MonoBehaviour
                 return seg;
         }
         return segments[lane][0];
+    }
+
+    public void DisableTrackColliderAt(int lane, float worldZ)
+    {
+        if (lane < 0 || lane >= 3) return;
+        foreach (GameObject seg in segments[lane])
+        {
+            float segStart = seg.transform.position.z - segmentLength * 0.5f;
+            float segEnd = seg.transform.position.z + segmentLength * 0.5f;
+            if (worldZ >= segStart && worldZ < segEnd)
+            {
+                Collider col = seg.GetComponent<Collider>();
+                if (col != null)
+                {
+                    col.enabled = false;
+                    StartCoroutine(EnableColliderDelayed(col, 1.5f));
+                }
+                return;
+            }
+        }
+    }
+
+    System.Collections.IEnumerator EnableColliderDelayed(Collider col, float delay)
+    {
+        yield return new System.Collections.WaitForSeconds(delay);
+        if (col != null) col.enabled = true;
     }
 }

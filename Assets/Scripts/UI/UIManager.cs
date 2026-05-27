@@ -137,7 +137,7 @@ public class UIManager : MonoBehaviour
         if (train != null)
         {
             float dist = train.GetDistance();
-            float ratio = Mathf.Clamp01(dist / 100f);
+            float ratio = Mathf.Clamp01(dist / train.initialDistance);
 
             // 背景条
             GUI.color = new Color(0.2f, 0.2f, 0.2f, 0.5f);

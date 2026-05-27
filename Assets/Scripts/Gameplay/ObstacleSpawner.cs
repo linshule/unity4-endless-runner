@@ -13,6 +13,7 @@ public class ObstacleSpawner : MonoBehaviour
     private float nextSpawnZ;
 
     public PlayerController player;
+    private TrackManager trackManager;
 
     public GameObject[] staticObstaclePrefabs;
     public GameObject dynamicObstaclePrefab;
@@ -31,6 +32,7 @@ public class ObstacleSpawner : MonoBehaviour
     {
         if (player == null)
             player = FindObjectOfType<PlayerController>();
+        trackManager = FindObjectOfType<TrackManager>();
 
         // 第一个障碍物在远方
         nextSpawnZ = spawnDistanceMin;
@@ -108,7 +110,7 @@ public class ObstacleSpawner : MonoBehaviour
             if (prefab != null)
                 CreateObstacle(prefab, pos);
             else
-                CreateObstacleGeometry(type, pos);
+                CreateObstacleGeometry(type, pos, lane);
         }
     }
 
@@ -199,7 +201,7 @@ public class ObstacleSpawner : MonoBehaviour
         return obj;
     }
 
-    GameObject CreateObstacleGeometry(int type, Vector3 position)
+    GameObject CreateObstacleGeometry(int type, Vector3 position, int lane = -1)
     {
         GameObject obj = GetPooledObject();
         if (obj == null)
@@ -255,7 +257,7 @@ public class ObstacleSpawner : MonoBehaviour
             }
             else
             {
-                // 断台：显示黑色缺口标记（仅视觉提示，无碰撞体）
+                // 断台：显示黑色缺口标记 + 实际移除该轨道段碰撞体
                 tag.isTrap = true; tag.isDynamic = false;
                 GameObject gapVis = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 gapVis.transform.parent = obj.transform;
@@ -264,6 +266,8 @@ public class ObstacleSpawner : MonoBehaviour
                 gapVis.GetComponent<Renderer>().material.color = new Color(0.25f, 0.25f, 0.25f);
                 Collider gapCol = gapVis.GetComponent<Collider>();
                 if (gapCol != null) gapCol.enabled = false;
+                if (trackManager != null && lane >= 0)
+                    trackManager.DisableTrackColliderAt(lane, position.z);
             }
         }
         else if (type == 1)
@@ -285,7 +289,7 @@ public class ObstacleSpawner : MonoBehaviour
             int subtype = Random.Range(0, 2);
             if (subtype == 0)
             {
-                // 深坑：黑色平板标记（仅视觉提示，无碰撞体）
+                // 深坑：黑色平板标记 + 实际移除该轨道段碰撞体
                 tag.isTrap = true; tag.isDynamic = false;
                 GameObject pitVis = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 pitVis.transform.parent = obj.transform;
@@ -294,6 +298,8 @@ public class ObstacleSpawner : MonoBehaviour
                 pitVis.GetComponent<Renderer>().material.color = new Color(0.25f, 0.2f, 0.15f);
                 Collider pitCol = pitVis.GetComponent<Collider>();
                 if (pitCol != null) pitCol.enabled = false;
+                if (trackManager != null && lane >= 0)
+                    trackManager.DisableTrackColliderAt(lane, position.z);
             }
             else
             {
