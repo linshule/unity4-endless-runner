@@ -256,7 +256,7 @@ public class ObstacleSpawner : MonoBehaviour
                 }
                 tag.isTrap = false; tag.isDynamic = false;
             }
-            else
+            else if (subtype == 3)
             {
                 // 断台：显示黑色缺口标记 + 实际移除该轨道段碰撞体 + 下方死亡触发
                 tag.isTrap = true; tag.isDynamic = false;
@@ -280,7 +280,7 @@ public class ObstacleSpawner : MonoBehaviour
                 ObstacleTag deathTag = deathBar.AddComponent<ObstacleTag>();
                 deathTag.isTrap = true;
             }
-            else if (subtype == 4)
+            else
             {
                 // 低位横梁：横跨 2-3 条轨道，需滑铲通过。站立碰撞即死，滑铲可躲
                 tag.isTrap = false; tag.isDynamic = false;
