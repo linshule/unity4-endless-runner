@@ -42,7 +42,6 @@ public class AdaptiveDifficulty : MonoBehaviour
     private float baseSpeed = 15f;
     private float baseMaxSpeed = 35f;
     private float baseTrainApproach = 2f;
-    private float baseSpawnDistanceMin = 80f;
     private float baseCollapseMaxInterval = 12f;
 
     void Awake()
@@ -79,7 +78,7 @@ public class AdaptiveDifficulty : MonoBehaviour
         }
         if (obstacleSpawner != null)
         {
-            baseSpawnDistanceMin = obstacleSpawner.spawnDistanceMin;
+            // 使用固定基准值，由 ApplyDifficulty() 中的 Lerp 控制
         }
     }
 

@@ -4,18 +4,15 @@ using System.Collections;
 public class UltimateDash : MonoBehaviour
 {
     public PlayerController player;
-    public float dashDistance = 40f;
+    public float dashDistance = 30f;
     public float dashDuration = 0.35f;
 
     private bool isDashing = false;
-    private CharacterController controller;
 
     void Start()
     {
         if (player == null)
             player = FindObjectOfType<PlayerController>();
-        if (player != null)
-            controller = player.GetComponent<CharacterController>();
     }
 
     void Update()

@@ -116,9 +116,9 @@ public class ObstacleSpawner : MonoBehaviour
 
     int SelectObstacleType()
     {
-        if (difficultyLevel >= 5 && trapsUnlocked && Random.value < 0.12f)
+        if (difficultyLevel >= 7 && trapsUnlocked && Random.value < 0.12f)
             return 2;
-        if (difficultyLevel >= 2 && dynamicUnlocked && Random.value < 0.25f)
+        if (difficultyLevel >= 4 && dynamicUnlocked && Random.value < 0.25f)
             return 1;
         return 0;
     }
@@ -367,7 +367,8 @@ public class ObstacleSpawner : MonoBehaviour
     public void SetDifficulty(int level)
     {
         difficultyLevel = Mathf.Clamp(level, 1, 10);
-        dynamicUnlocked = (difficultyLevel >= 2);
-        trapsUnlocked = (difficultyLevel >= 5);
+        // 需求 §8.3: Lv1~3 仅静态, Lv4~6 +动态, Lv7~8 +陷阱, Lv9~10 全部+组合
+        dynamicUnlocked = (difficultyLevel >= 4);
+        trapsUnlocked = (difficultyLevel >= 7);
     }
 }

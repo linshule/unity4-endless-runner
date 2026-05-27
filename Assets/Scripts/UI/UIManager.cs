@@ -96,7 +96,12 @@ public class UIManager : MonoBehaviour
             GUI.Label(new Rect(0, h * 0.42f, w, 30), "最高分: " + gm.highScore, hsStyle);
         }
 
-        if (GUI.Button(new Rect(w * 0.35f, h * 0.55f, w * 0.3f, 55), "开始游戏", btnStyle))
+        // 总金币数显示（底部）
+        GUIStyle coinTotalStyle = new GUIStyle(subStyle);
+        coinTotalStyle.normal.textColor = new Color(1f, 0.85f, 0.3f);
+        GUI.Label(new Rect(0, h * 0.50f, w, 30), "总金币: " + gm.totalCoins, coinTotalStyle);
+
+        if (GUI.Button(new Rect(w * 0.35f, h * 0.60f, w * 0.3f, 55), "开始游戏", btnStyle))
             OnStartGameClicked();
 
         // 操作提示
@@ -149,6 +154,18 @@ public class UIManager : MonoBehaviour
         coinStyle.alignment = TextAnchor.UpperRight;
         coinStyle.normal.textColor = new Color(1f, 0.85f, 0.3f);
         GUI.Label(new Rect(w - 200, 20, 170, 30), "金币 " + gm.coinCount, coinStyle);
+
+        // === 暂停按钮（右上角） ===
+        GUIStyle pauseBtnStyle = new GUIStyle(GUI.skin.button);
+        pauseBtnStyle.fontSize = 16;
+        pauseBtnStyle.fontStyle = FontStyle.Bold;
+        pauseBtnStyle.normal.textColor = Color.white;
+        pauseBtnStyle.hover.textColor = Color.yellow;
+        float pauseBtnSize = 40f;
+        if (GUI.Button(new Rect(w - pauseBtnSize - 10, 10, pauseBtnSize, pauseBtnSize), "||", pauseBtnStyle))
+        {
+            gm.PauseGame();
+        }
 
         // === 列车距离条（顶部居中） ===
         if (train != null)
