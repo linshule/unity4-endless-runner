@@ -1,4 +1,4 @@
-@startuml 子模块B: 赛道环境与道具系统时序图
+@startuml 子模块B_赛道环境与道具系统时序图
 ' 参与者定义
 actor 玩家
 participant 赛道系统 as TrackSys
@@ -7,70 +7,68 @@ participant 结算系统 as ScoreSys
 
 ' 游戏进行中主循环
 loop 游戏进行中
-    ' 玩家操作与赛道交互
-    玩家 -> TrackSys: 操控角色前进
-    activate TrackSys
-    TrackSys -> TrackSys: 检测前方地形/障碍/陷阱
-    
-    ' 地形塌陷场景
-    alt 前方出现地形塌陷
-        TrackSys --> 玩家: 提示地形塌陷预警
-        玩家 -> TrackSys: 操控角色规避塌陷
-        TrackSys -> TrackSys: 调整角色轨道/跳跃
-        TrackSys --> 玩家: 规避成功，继续前进
+    group 赛道环境交互
+        ' 玩家操作与赛道交互
+        玩家 -> TrackSys: 操控角色前进
+        activate TrackSys
+        TrackSys -> TrackSys: 检测前方地形/障碍/陷阱
+
+        alt 前方出现地形塌陷
+            TrackSys --> 玩家: 提示地形塌陷预警
+            玩家 -> TrackSys: 操控角色规避塌陷
+            TrackSys -> TrackSys: 调整角色轨道/跳跃
+            TrackSys --> 玩家: 规避成功，继续前进
+        else 前方出现静态障碍
+            TrackSys --> 玩家: 显示静态障碍
+            玩家 -> TrackSys: 操控角色躲避障碍
+            TrackSys -> TrackSys: 碰撞检测
+            TrackSys --> 玩家: 障碍躲避成功
+        else 前方出现旋转机关
+            TrackSys --> 玩家: 显示旋转机关
+            玩家 -> TrackSys: 操控角色躲避机关
+            TrackSys -> TrackSys: 机关碰撞检测
+            TrackSys --> 玩家: 机关躲避成功
+        else 前方出现陷阱
+            TrackSys --> 玩家: 提示陷阱位置
+            玩家 -> TrackSys: 操控角色规避陷阱
+            TrackSys -> TrackSys: 陷阱碰撞检测
+            TrackSys --> 玩家: 陷阱规避成功
+        else 无障碍物
+            TrackSys --> 玩家: 正常前进
+        end
+        deactivate TrackSys
     end
 
-    ' 静态障碍场景
-    alt 前方出现静态障碍
-        TrackSys --> 玩家: 显示静态障碍
-        玩家 -> TrackSys: 操控角色躲避障碍
-        TrackSys -> TrackSys: 碰撞检测
-        TrackSys --> 玩家: 障碍躲避成功
-    end
+    group 道具收集系统
+        ' 金币收集场景（包含查看得分）
+        alt 遇到金币
+            玩家 -> ItemSys: 收集金币
+            activate ItemSys
+            ItemSys -> ScoreSys: 增加金币计数
+            activate ScoreSys
+            ScoreSys -> ScoreSys: 更新当前分数
+            ScoreSys --> ItemSys: 返回当前分数
+            deactivate ScoreSys
+            ItemSys --> TrackSys: 金币收集完成，更新分数
+            deactivate ItemSys
+            TrackSys --> 玩家: 显示金币+分数变化
+        end
 
-    ' 旋转机关场景
-    alt 前方出现旋转机关
-        TrackSys --> 玩家: 显示旋转机关
-        玩家 -> TrackSys: 操控角色躲避机关
-        TrackSys -> TrackSys: 机关碰撞检测
-        TrackSys --> 玩家: 机关躲避成功
-    end
-
-    ' 陷阱场景
-    alt 前方出现陷阱
-        TrackSys --> 玩家: 提示陷阱位置
-        玩家 -> TrackSys: 操控角色规避陷阱
-        TrackSys -> TrackSys: 陷阱碰撞检测
-        TrackSys --> 玩家: 陷阱规避成功
-    end
-    deactivate TrackSys
-
-    ' 金币收集场景（包含查看得分）
-    alt 遇到金币
-        玩家 -> ItemSys: 收集金币
-        activate ItemSys
-        ItemSys -> ScoreSys: 增加金币计数
-        activate ScoreSys
-        ScoreSys -> ScoreSys: 更新当前分数
-        ScoreSys --> ItemSys: 返回当前分数
-        deactivate ScoreSys
-        ItemSys --> TrackSys: 金币收集完成，更新分数
-        deactivate ItemSys
-        TrackSys --> 玩家: 显示金币+分数变化
-    end
-
-    ' 双倍分数道具场景（包含查看得分）
-    alt 遇到双倍分数道具
-        玩家 -> ItemSys: 拾取双倍分数道具
-        activate ItemSys
-        ItemSys -> ScoreSys: 激活双倍分数倍率
-        activate ScoreSys
-        ScoreSys -> ScoreSys: 更新分数倍率与当前得分
-        ScoreSys --> ItemSys: 返回更新后的分数
-        deactivate ScoreSys
-        ItemSys --> TrackSys: 道具效果激活，分数倍率生效
-        deactivate ItemSys
-        TrackSys --> 玩家: 显示双倍分数效果与得分变化
+        ' 双倍分数道具场景（包含查看得分）
+        alt 遇到双倍分数道具
+            玩家 -> ItemSys: 拾取双倍分数道具
+            activate ItemSys
+            ItemSys -> ScoreSys: 激活双倍分数倍率
+            activate ScoreSys
+            ScoreSys -> ScoreSys: 更新分数倍率与当前得分
+            ScoreSys --> ItemSys: 返回更新后的分数
+            deactivate ScoreSys
+            ItemSys --> TrackSys: 道具效果激活，分数倍率生效
+            deactivate ItemSys
+            TrackSys --> 玩家: 显示双倍分数效果与得分变化
+        else 无道具
+            ItemSys --> TrackSys: 无道具拾取
+        end
     end
 end
 @enduml

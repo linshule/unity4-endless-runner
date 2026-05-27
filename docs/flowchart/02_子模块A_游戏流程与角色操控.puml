@@ -1,0 +1,56 @@
+@startuml 子模块A_游戏流程与角色操控
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+skinparam activity {
+    BorderColor #1E40AF
+    BackgroundColor #EFF6FF
+    FontSize 11
+}
+skinparam arrowColor #1E40AF
+skinparam arrowThickness 2
+
+title 子模块A：游戏流程与角色操控
+
+start
+:初始化游戏数据\n(分数/角色/赛道);
+while (游戏主循环运行中?) is (是)
+  if (玩家输入操作?) then (操控角色)
+    :执行角色动作;
+    if (操作类型?) as op_type
+    elseif (滑铲) then
+      :执行滑铲动作\n碰撞检测;
+    elseif (左右变道) then
+      :切换跑道\n规避障碍;
+    elseif (跳跃) then
+      :执行跳跃动作\n腾空判定;
+    endif
+    if (碰撞障碍/地形?) then (是)
+      :角色死亡\n播放死亡动画;
+      if (使用时间回溯?\n1500分解锁,每局1次,列车未追上) then (是)
+        :进入子模块C\n时间回溯流程;
+        detach
+      else (否/条件不满足)
+        :进入结算界面;
+      endif
+    else (否)
+      :继续游戏\n更新分数;
+    endif
+  elseif (暂停游戏) then
+    :暂停计时\n显示暂停界面;
+    if (玩家选择?) then (恢复游戏)
+    else (返回主菜单)
+      :进入结算界面;
+    endif
+  elseif (查看得分) then
+    :显示当前分数;
+  endif
+endwhile (否/退出循环)
+
+:进入结算界面;
+:显示结算信息\n(得分/最高分对比);
+if (玩家选择?) then (重新开始)
+else (返回主菜单)
+endif
+stop
+@enduml
