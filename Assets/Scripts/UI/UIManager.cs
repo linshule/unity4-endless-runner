@@ -151,7 +151,6 @@ public class UIManager : MonoBehaviour
         GUI.Label(new Rect(w - 200, 20, 170, 30), "金币 " + gm.coinCount, coinStyle);
 
         // === 列车距离条（顶部居中） ===
-        TrainController train = FindObjectOfType<TrainController>();
         if (train != null)
         {
             float dist = train.GetDistance();

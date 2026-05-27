@@ -255,7 +255,7 @@ public class GameManager : MonoBehaviour
     public void LoadMainMenu()
     {
         state = GameState.Menu;
-        Application.LoadLevel("MainMenu");
+        Application.LoadLevel(Application.loadedLevel);
     }
 
     void LoadHighScore()

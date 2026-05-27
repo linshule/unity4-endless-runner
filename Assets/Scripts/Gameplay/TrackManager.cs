@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class TrackManager : MonoBehaviour
 {
@@ -117,7 +118,7 @@ public class TrackManager : MonoBehaviour
 
     System.Collections.IEnumerator EnableColliderDelayed(Collider col, float delay)
     {
-        yield return new System.Collections.WaitForSeconds(delay);
+        yield return new WaitForSeconds(delay);
         if (col != null) col.enabled = true;
     }
 }
