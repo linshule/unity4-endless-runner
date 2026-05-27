@@ -38,6 +38,7 @@ public class UltimateDash : MonoBehaviour
     {
         isDashing = true;
         player.isInvincible = true;
+        player.isDashing = true;
 
         Vector3 startPos = player.transform.position;
         float distancePerStep = dashDistance / (dashDuration / Time.fixedDeltaTime);
@@ -96,6 +97,7 @@ public class UltimateDash : MonoBehaviour
             train.AddDistance(15f);
         }
 
+        player.isDashing = false;
         GameObject.Destroy(trail, 0.3f);
         isDashing = false;
     }

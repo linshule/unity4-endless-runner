@@ -116,15 +116,25 @@ public class GameManager : MonoBehaviour
         scoreMultiplier = 1f;
         rewindUnlocked = false;
         rewindUsed = false;
+        deathFlashTimer = 0f;
 
         if (player != null)
+        {
             player.Revive();
+            player.isDashing = false;
+        }
+
+        // 还原时间缩放
+        Time.timeScale = 1f;
+
+        // 恢复列车距离
+        TrainController train = FindObjectOfType<TrainController>();
+        if (train != null) train.RestoreDistance();
 
         // 重置自适应难度
         AdaptiveDifficulty ad = AdaptiveDifficulty.Instance;
         if (ad != null) ad.ResetForNewGame();
 
-        Time.timeScale = 1f;
         Screen.lockCursor = true;
         Screen.showCursor = false;
     }
@@ -159,12 +169,6 @@ public class GameManager : MonoBehaviour
         player.Die();
         state = GameState.Dead;
         deathFlashTimer = deathFlashDuration;
-
-        TrainController train = FindObjectOfType<TrainController>();
-        if (train != null) train.ApplyDeathPenalty();
-
-        if (HUDController.Instance != null)
-            HUDController.Instance.OnPlayerDead();
 
         if (rewindUnlocked && !rewindUsed)
         {
@@ -240,8 +244,6 @@ public class GameManager : MonoBehaviour
         Screen.lockCursor = false;
         Screen.showCursor = true;
 
-        if (HUDController.Instance != null)
-            HUDController.Instance.OnGameOver();
     }
 
     public void RestartGame()

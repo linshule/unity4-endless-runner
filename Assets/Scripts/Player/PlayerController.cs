@@ -30,9 +30,11 @@ public class PlayerController : MonoBehaviour
     private float slideTimer = 0f;
     private float slideCooldownTimer = 0f;
 
-    // === 死亡状态 ===
+    // === 死亡/冲刺状态 ===
     public bool isDead = false;
     public bool isInvincible = false;
+    public bool isDashing = false;
+    public bool isDashing_SkipMove = false;
     private float deathAnimTimer = 0f;
 
     // === 组件引用 ===
@@ -118,8 +120,13 @@ public class PlayerController : MonoBehaviour
         }
         move.y = verticalVelocity * Time.deltaTime;
 
-        controller.Move(move);
-        CheckGrounded();
+        if (!isDashing)
+        {
+            controller.Move(move);
+            CheckGrounded();
+        }
+
+        // 冲刺时由 UltimateDash 直接控制位置，但跳跃输入仍响应（结束后衔接）
 
         // 掉落即死检测
         if (transform.position.y < -5f && !isInvincible)

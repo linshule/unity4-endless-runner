@@ -16,8 +16,6 @@ public class HUDController : MonoBehaviour
             gameManager = GameManager.Instance;
     }
 
-    public void OnPlayerDead() { }
-    public void OnGameOver() { }
     public void OnCoinCollected() { }
     public void OnRewindUnlocked() { TimeRewind tr = FindObjectOfType<TimeRewind>(); if (tr != null) tr.OnRewindUnlocked(); }
     public void OnDoubleScoreActivated(float duration) { }

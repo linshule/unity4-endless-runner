@@ -16,7 +16,7 @@ public class DoubleScorePickup : MonoBehaviour
             {
                 pm.ActivateDoubleScore();
             }
-            GameObject.Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 }
