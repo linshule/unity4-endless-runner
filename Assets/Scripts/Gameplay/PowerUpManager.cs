@@ -15,6 +15,7 @@ public class PowerUpManager : MonoBehaviour
     public float spawnChance = 0.5f;
     private float nextSpawnCheck;
     private GameObject activeDoubleScoreObj;
+    private GameObject doubleScoreOrbit;
 
     void Start()
     {
@@ -28,13 +29,23 @@ public class PowerUpManager : MonoBehaviour
         if (player == null || player.isDead) return;
         if (GameManager.Instance == null || GameManager.Instance.state != GameState.Playing) return;
 
-        // 双倍分数计时
+        // 双倍分数计时 + 环绕动画
         if (doubleScoreActive)
         {
             doubleScoreTimer -= Time.deltaTime;
             if (doubleScoreTimer <= 0f)
             {
                 DeactivateDoubleScore();
+            }
+            else if (doubleScoreOrbit != null && player != null)
+            {
+                float angle = Time.time * 180f * Mathf.Deg2Rad;
+                doubleScoreOrbit.transform.localPosition = new Vector3(
+                    Mathf.Cos(angle) * 0.8f,
+                    1f + Mathf.Sin(angle * 2f) * 0.3f,
+                    0f
+                );
+                doubleScoreOrbit.transform.Rotate(0f, 360f * Time.deltaTime, 0f);
             }
         }
 
@@ -100,6 +111,20 @@ public class PowerUpManager : MonoBehaviour
         }
 
         activeDoubleScoreObj = null;
+
+        // 创建环绕黄色 Cube（作为玩家子物体）
+        if (player != null)
+        {
+            doubleScoreOrbit = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            doubleScoreOrbit.name = "DoubleScoreOrbit";
+            doubleScoreOrbit.transform.parent = player.transform;
+            doubleScoreOrbit.transform.localPosition = new Vector3(0.8f, 1f, 0f);
+            doubleScoreOrbit.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+            Renderer orbR = doubleScoreOrbit.GetComponent<Renderer>();
+            if (orbR != null) orbR.material.color = Color.yellow;
+            Collider orbC = doubleScoreOrbit.GetComponent<Collider>();
+            if (orbC != null) orbC.enabled = false;
+        }
     }
 
     void DeactivateDoubleScore()
@@ -115,6 +140,12 @@ public class PowerUpManager : MonoBehaviour
         if (HUDController.Instance != null)
         {
             HUDController.Instance.OnDoubleScoreDeactivated();
+        }
+
+        if (doubleScoreOrbit != null)
+        {
+            GameObject.Destroy(doubleScoreOrbit);
+            doubleScoreOrbit = null;
         }
     }
 

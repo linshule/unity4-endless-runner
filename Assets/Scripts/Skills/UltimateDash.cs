@@ -44,6 +44,9 @@ public class UltimateDash : MonoBehaviour
         float distancePerStep = dashDistance / (dashDuration / Time.fixedDeltaTime);
         if (distancePerStep < 1f) distancePerStep = 1f;
 
+        // 摧毁路径上所有障碍物
+        DestroyObstaclesAlongPath(startPos, dashDistance);
+
         // 轨迹特效
         GameObject trail = GameObject.CreatePrimitive(PrimitiveType.Cube);
         trail.name = "DashTrail";
@@ -119,6 +122,31 @@ public class UltimateDash : MonoBehaviour
                     train.AddDistance(3f);
 
                 hit.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    void DestroyObstaclesAlongPath(Vector3 origin, float distance)
+    {
+        float step = 3f;
+        for (float z = 0f; z <= distance; z += step)
+        {
+            Vector3 checkPos = origin + Vector3.forward * z;
+            checkPos.y += 1.5f;
+            Collider[] hits = Physics.OverlapSphere(checkPos, 4f);
+            foreach (Collider hit in hits)
+            {
+                GameObject obj = hit.gameObject;
+                ObstacleTag tag = obj.GetComponent<ObstacleTag>();
+                if (tag == null && obj.transform.parent != null)
+                    tag = obj.transform.parent.GetComponent<ObstacleTag>();
+                if (tag != null && obj.activeInHierarchy)
+                {
+                    if (obj.transform.parent != null)
+                        obj.transform.parent.gameObject.SetActive(false);
+                    else
+                        obj.SetActive(false);
+                }
             }
         }
     }
