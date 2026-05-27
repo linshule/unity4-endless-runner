@@ -42,15 +42,6 @@ public class SkillManager : MonoBehaviour
             }
         }
 
-        // 技能输入
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            TryUseSkill("Dash");
-        }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            TryUseSkill("Clone");
-        }
     }
 
     public void RegisterSkill(string skillName, float cd)
