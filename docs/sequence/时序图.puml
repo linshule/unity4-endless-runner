@@ -1,0 +1,119 @@
+@startuml 无尽跑酷游戏流程时序图
+' 定义参与者
+actor "玩家" as 玩家
+participant "游戏界面" as 界面
+participant "游戏控制" as 控制
+participant "技能管理" as 技能
+participant "分数计算" as 分数
+participant "数据存储" as 存储
+
+' 游戏启动阶段
+玩家 -> 界面: 点击"开始游戏"
+activate 界面
+界面 -> 控制: 初始化游戏
+activate 控制
+控制 --> 界面: 游戏开始
+deactivate 控制
+界面 --> 玩家: 显示游戏主场景
+deactivate 界面
+
+' 游戏主循环
+loop 游戏进行中
+    玩家 -> 界面: 操控角色(滑动/点击)
+    activate 界面
+    界面 -> 控制: 发送操作指令
+    activate 控制
+    
+    alt 操作类型: 滑行/变道/跳跃
+        控制 -> 控制: 更新角色位置与状态
+        控制 --> 界面: 渲染角色动作
+        deactivate 控制
+        界面 --> 玩家: 显示角色反馈
+    end
+
+    ' 分数处理分支
+    activate 控制
+    控制 -> 分数: 触发分数增加
+    activate 分数
+    分数 --> 控制: 返回当前分数
+    deactivate 分数
+    控制 --> 界面: 更新分数显示
+    deactivate 控制
+    界面 --> 玩家: 显示分数变化
+    deactivate 界面
+
+    ' 技能分支
+    alt 请求释放技能
+        玩家 -> 界面: 请求释放技能
+        activate 界面
+        界面 -> 技能: 调用技能
+        activate 技能
+        
+        alt 技能: 幻影分身
+            技能 -> 技能: 检查冷却(25s)
+            技能 --> 界面: 生成分身, 持续6秒
+            deactivate 技能
+            界面 --> 玩家: 显示分身效果
+        end
+
+        alt 技能: 虚空冲刺
+            技能 -> 技能: 检查冷却(45s)
+            技能 --> 界面: 前冲30m, 清障, 无敌
+            deactivate 技能
+            界面 --> 玩家: 显示冲刺效果
+        end
+
+        alt 技能: 时间回溯
+            技能 -> 技能: 检查条件(已解锁,角色死亡,列车未追上)
+            技能 --> 界面: 回退至碰撞前2秒
+            deactivate 技能
+            界面 --> 玩家: 显示回溯效果
+        end
+        deactivate 界面
+    end
+
+    ' 碰撞检测分支
+    alt 检测到碰撞
+        控制 -> 控制: 检测碰撞与地形
+        activate 控制
+        控制 -> 分数: 触发角色死亡事件
+        activate 分数
+        分数 --> 控制: 死亡处理完成
+        deactivate 分数
+        控制 --> 界面: 进入结算界面
+        deactivate 控制
+        deactivate 控制
+        界面 --> 玩家: 显示结算界面
+    end
+end
+
+' 结算后操作
+玩家 -> 界面: 在结算界面操作
+activate 界面
+
+alt 操作: 查看最高分
+    界面 -> 分数: 查询最高记录
+    activate 分数
+    分数 -> 存储: 查询最高分
+    activate 存储
+    存储 --> 分数: 返回最高分
+    deactivate 存储
+    分数 --> 界面: 返回最高分
+    deactivate 分数
+    界面 --> 玩家: 显示最高分
+end
+
+alt 操作: 重新开始
+    界面 -> 控制: 重置游戏状态
+    activate 控制
+    控制 --> 界面: 游戏重置完成
+    deactivate 控制
+    界面 --> 玩家: 返回游戏主场景
+end
+
+界面 -> 界面: 清理游戏资源
+界面 --> 玩家: 显示主菜单
+deactivate 界面
+
+note right: 游戏流程结束
+@enduml
