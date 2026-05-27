@@ -109,6 +109,24 @@ public class UIManager : MonoBehaviour
 
     void DrawHUD(int w, int h, GameManager gm)
     {
+        // === 列车逼近红光边缘 ===
+        TrainController train = FindObjectOfType<TrainController>();
+        if (train != null)
+        {
+            float intensity = train.GetWarningIntensity();
+            if (intensity > 0.01f)
+            {
+                float edgeThick = 20f * intensity;
+                Color edgeColor = new Color(1f, 0f, 0f, 0.3f * intensity);
+                GUI.color = edgeColor;
+                GUI.DrawTexture(new Rect(0, 0, w, edgeThick), Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(0, h - edgeThick, w, edgeThick), Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(0, 0, edgeThick, h), Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(w - edgeThick, 0, edgeThick, h), Texture2D.whiteTexture);
+                GUI.color = Color.white;
+            }
+        }
+
         // === 左上：分数 ===
         GUIStyle scoreStyle = new GUIStyle(GUI.skin.label);
         scoreStyle.fontSize = 28;
@@ -197,6 +215,36 @@ public class UIManager : MonoBehaviour
             rewindStyle.normal.textColor = Color.cyan;
             GUI.Label(new Rect(w - 200, 45, 170, 25), "回溯: 可用", rewindStyle);
         }
+
+        // === 双倍分数倒计时进度条 ===
+        PowerUpManager pm = FindObjectOfType<PowerUpManager>();
+        if (pm != null && pm.IsDoubleScoreActive())
+        {
+            float remain = pm.GetDoubleScoreRemaining();
+            float barWidth = 160f;
+            float barHeight = 12f;
+            float barX = (w - barWidth) * 0.5f;
+            float barY = 50f;
+
+            // 背景
+            GUI.color = new Color(0.2f, 0.2f, 0.2f, 0.6f);
+            GUI.DrawTexture(new Rect(barX, barY, barWidth, barHeight), Texture2D.whiteTexture);
+
+            // 进度
+            Color barColor = (remain < 0.3f) ? Color.red : Color.yellow;
+            if (remain < 0.3f && Mathf.Floor(Time.time * 4f) % 2 == 0)
+                barColor = new Color(0.5f, 0f, 0f);
+            GUI.color = barColor;
+            GUI.DrawTexture(new Rect(barX, barY, barWidth * remain, barHeight), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            // 标签
+            GUIStyle dsStyle = new GUIStyle(GUI.skin.label);
+            dsStyle.fontSize = 12;
+            dsStyle.alignment = TextAnchor.MiddleCenter;
+            dsStyle.normal.textColor = Color.yellow;
+            GUI.Label(new Rect(barX - 30, barY, 30, barHeight), "x2", dsStyle);
+        }
     }
 
     void DrawDeathScreen(int w, int h, GameManager gm)
@@ -209,17 +257,21 @@ public class UIManager : MonoBehaviour
 
         if (gm.rewindUnlocked && !gm.rewindUsed)
         {
-            // 回溯提示
             GUI.Label(new Rect(0, h * 0.25f, w, 60), "致命碰撞！", titleStyle);
 
-            GUIStyle rewindStyle = new GUIStyle(GUI.skin.label);
-            rewindStyle.fontSize = 32;
-            rewindStyle.alignment = TextAnchor.MiddleCenter;
-            rewindStyle.normal.textColor = Color.yellow;
+            GUIStyle rewindBtnStyle = new GUIStyle(GUI.skin.button);
+            rewindBtnStyle.fontSize = 28;
+            rewindBtnStyle.fontStyle = FontStyle.Bold;
+            rewindBtnStyle.normal.textColor = Color.yellow;
+            rewindBtnStyle.hover.textColor = Color.white;
 
-            float alpha = 0.7f + Mathf.Sin(Time.time * 3f) * 0.3f;
-            rewindStyle.normal.textColor = new Color(1f, 0.9f, 0.2f, alpha);
-            GUI.Label(new Rect(0, h * 0.4f, w, 50), "按 空格 时间回溯！", rewindStyle);
+            float btnW = w * 0.4f;
+            float btnH = 55f;
+            if (GUI.Button(new Rect((w - btnW) * 0.5f, h * 0.4f, btnW, btnH), "时间回溯！", rewindBtnStyle))
+            {
+                TimeRewind tr = FindObjectOfType<TimeRewind>();
+                if (tr != null) tr.TriggerRewind();
+            }
         }
         else
         {
@@ -267,8 +319,11 @@ public class UIManager : MonoBehaviour
         GUI.Label(new Rect(0, h * 0.42f, w, 40), "金币: " + gm.coinCount, valStyle);
 
         float btnW = w * 0.28f;
-        if (GUI.Button(new Rect((w - w * 0.28f) / 2f, h * 0.58f, btnW, 50), "重新开始", btnStyle))
+        float btnX = (w - btnW) / 2f;
+        if (GUI.Button(new Rect(btnX, h * 0.58f, btnW, 50), "重新开始", btnStyle))
             OnRestartClicked();
+        if (GUI.Button(new Rect(btnX, h * 0.68f, btnW, 50), "返回主菜单", btnStyle))
+            gm.LoadMainMenu();
     }
 
     void DrawPauseScreen(int w, int h, GameManager gm)
@@ -285,7 +340,11 @@ public class UIManager : MonoBehaviour
 
         GUIStyle btnStyle = new GUIStyle(GUI.skin.button);
         btnStyle.fontSize = 22;
-        if (GUI.Button(new Rect(w * 0.35f, h * 0.5f, w * 0.3f, 50), "继续游戏", btnStyle))
+        float btnW = w * 0.3f;
+        float btnX = (w - btnW) / 2f;
+        if (GUI.Button(new Rect(btnX, h * 0.5f, btnW, 50), "继续游戏", btnStyle))
             gm.ResumeGame();
+        if (GUI.Button(new Rect(btnX, h * 0.6f, btnW, 50), "返回主菜单", btnStyle))
+            gm.LoadMainMenu();
     }
 }
