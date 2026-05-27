@@ -1,0 +1,64 @@
+digraph MainFlowchart {
+    splines=ortho;
+    rankdir=TB;
+    bgcolor="#FEFEFE";
+    label="无尽跑酷游戏 - 总流程";
+    labeljust=l;
+    fontname="Microsoft YaHei";
+    fontsize=16;
+    fontcolor="#1E293B";
+    pad=0.5;
+    nodesep=0.4;
+    ranksep=0.5;
+
+    node [fontname="Microsoft YaHei", fontsize=11, penwidth=1.5];
+    edge [fontname="Microsoft YaHei", fontsize=10];
+
+    /* ===== Start / End ===== */
+    node [shape=box, style=rounded, fillcolor="#E8F5E9", color="#2E7D32", penwidth=2];
+    start [label="开始"];
+    end   [label="结束"];
+
+    /* ===== Process ===== */
+    node [shape=box, fillcolor="#F8FAFC", color="#334155", penwidth=1.5];
+    menu   [label="进入主菜单"];
+    init   [label="初始化游戏数据\n(分数/角色/赛道)"];
+    moduleA [label="子模块A\n游戏流程与角色操控"];
+    scoreDisp [label="显示本次得分\n最高分对比"];
+
+    /* ===== Decision ===== */
+    node [shape=diamond, fillcolor="#FFF3E0", color="#E65100", margin="0.2,0.15"];
+    mainChoice  [label="玩家选择\n操作?"];
+    isDead      [label="角色死亡?"];
+    canRewind   [label="使用时间回溯?\n(已解锁且未使用)"];
+    settleChoice [label="玩家选择?"];
+    stayMenu    [label="留在主菜单?"];
+
+    /* ===== I/O ===== */
+    node [shape=parallelogram, fillcolor="#E3F2FD", color="#1565C0"];
+    highScore   [label="显示历史\n最高分"];
+
+    /* ===== Edges ===== */
+    start           -> menu;
+    menu            -> mainChoice;
+
+    mainChoice      -> init         [xlabel="开始游戏"];
+    init            -> moduleA;
+
+    mainChoice      -> highScore    [xlabel="查看最高分"];
+    highScore       -> menu;
+
+    mainChoice      -> end          [xlabel="退出游戏"];
+
+    moduleA         -> isDead;
+
+    isDead          -> canRewind    [xlabel="是"];
+    isDead          -> scoreDisp    [xlabel="否"];
+
+    canRewind       -> moduleA      [xlabel="是\n回溯"];
+    canRewind       -> scoreDisp    [xlabel="否\n条件不满足"];
+
+    scoreDisp       -> settleChoice;
+    settleChoice    -> init         [xlabel="重新开始"];
+    settleChoice    -> menu         [xlabel="返回主菜单"];
+}

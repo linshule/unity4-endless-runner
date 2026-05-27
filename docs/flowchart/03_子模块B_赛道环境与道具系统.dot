@@ -1,0 +1,65 @@
+digraph ModuleB {
+    splines=ortho;
+    rankdir=TB;
+    bgcolor="#FEFEFE";
+    label="子模块B：赛道环境与道具系统";
+    labeljust=l;
+    fontname="Microsoft YaHei";
+    fontsize=16;
+    fontcolor="#1E293B";
+    pad=0.5;
+    nodesep=0.4;
+    ranksep=0.5;
+
+    node [fontname="Microsoft YaHei", fontsize=11, penwidth=1.5];
+    edge [fontname="Microsoft YaHei", fontsize=10];
+
+    /* ===== Start / End ===== */
+    node [shape=box, style=rounded, fillcolor="#E8F5E9", color="#2E7D32", penwidth=2];
+    start [label="开始\n(从游戏主循环进入)"];
+    end_node [label="结束\n(回到子模块A)"];
+
+    /* ===== Process ===== */
+    node [shape=box, fillcolor="#F8FAFC", color="#334155", penwidth=1.5];
+    generate  [label="赛道持续生成\n障碍/道具"];
+    evadeSuccess [label="成功规避\n继续前进"];
+    coinCollect  [label="玩家收集金币"];
+    doublePickup [label="玩家拾取\n双倍分数道具"];
+    coinScore    [label="分数增加\n金币分值"];
+    doubleActive [label="激活双倍\n分数效果"];
+    showCoin     [label="更新得分显示"];
+    showDouble   [label="提示双倍\n分数生效"];
+
+    /* ===== Decision ===== */
+    node [shape=diamond, fillcolor="#FFF3E0", color="#E65100", margin="0.2,0.15"];
+    threatQ   [label="前方出现\n威胁/道具?"];
+    evadeQ    [label="玩家规避成功?\n(滑铲/变道/跳跃)"];
+    pickupQ   [label="拾取类型?"];
+
+    /* ===== I/O ===== */
+    node [shape=parallelogram, fillcolor="#E3F2FD", color="#1565C0"];
+
+    /* ===== Edges ===== */
+    start       -> generate;
+
+    generate    -> threatQ;
+
+    threatQ     -> evadeQ         [xlabel="障碍/机关\n陷阱/塌陷"];
+    evadeQ      -> evadeSuccess   [xlabel="是"];
+    evadeQ      -> end_node       [xlabel="否\n角色死亡"];
+    evadeSuccess -> generate;
+
+    threatQ     -> pickupQ        [xlabel="金币/\n双倍分数"];
+
+    pickupQ     -> coinCollect    [xlabel="金币"];
+    coinCollect -> coinScore;
+    coinScore   -> showCoin;
+    showCoin    -> generate;
+
+    pickupQ     -> doublePickup   [xlabel="双倍分数"];
+    doublePickup -> doubleActive;
+    doubleActive -> showDouble;
+    showDouble  -> generate;
+
+    threatQ     -> generate       [xlabel="无"];
+}
