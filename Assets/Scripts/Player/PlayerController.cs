@@ -162,15 +162,12 @@ public class PlayerController : MonoBehaviour
 
     void HandleSlide()
     {
-        if (!isGrounded) return;
-
         if (slideCooldownTimer > 0f)
         {
             slideCooldownTimer -= Time.deltaTime;
-            return;
         }
 
-        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftControl)) && !isSliding)
+        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftControl)) && !isSliding && isGrounded)
         {
             StartSlide();
         }
@@ -240,9 +237,13 @@ public class PlayerController : MonoBehaviour
         deathAnimTimer = 0f;
         currentSpeed = baseSpeed;
         verticalVelocity = 0f;
-        // 恢复视觉
+        // 恢复视觉（滑铲可能卡住，强制重置）
+        isSliding = false;
+        slideTimer = 0f;
+        controller.height = originalHeight;
+        controller.center = new Vector3(0f, originalCenterY, 0f);
         if (bodyObj != null)
-            bodyObj.transform.localScale = Vector3.one;
+            bodyObj.transform.localScale = new Vector3(0.5f, 1f, 0.5f);
         if (headObj != null)
             headObj.transform.localPosition = new Vector3(0f, 1.8f, 0f);
     }
