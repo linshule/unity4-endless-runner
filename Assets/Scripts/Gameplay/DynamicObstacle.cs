@@ -30,7 +30,7 @@ public class DynamicObstacle : MonoBehaviour
         if (barTransform != null)
         {
             float speed = rotationSpeed + (player.GetSpeed() * 3f);
-            barTransform.Rotate(0f, speed * Time.deltaTime, 0f);
+            barTransform.Rotate(0f, 0f, speed * Time.deltaTime);
         }
     }
 }

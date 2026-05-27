@@ -5,7 +5,7 @@ public class TerrainCollapse : MonoBehaviour
 {
     public float minCollapseInterval = 8f;
     public float maxCollapseInterval = 15f;
-    public float warningTime = 0.3f;
+    public float warningTime = 0.5f;
     public float sinkDuration = 0.5f;
     public float sinkDepth = 2f;
     public float trapDuration = 3f;

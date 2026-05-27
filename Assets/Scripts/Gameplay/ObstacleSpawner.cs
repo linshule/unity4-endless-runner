@@ -133,7 +133,7 @@ public class ObstacleSpawner : MonoBehaviour
         else
         {
             foreach (Transform child in obj.transform)
-                GameObject.Destroy(child.gameObject);
+                GameObject.DestroyImmediate(child.gameObject);
 
             obj.transform.position = position;
             obj.transform.rotation = Quaternion.identity;
@@ -208,7 +208,7 @@ public class ObstacleSpawner : MonoBehaviour
             obj = new GameObject("Obstacle_Fallback");
         else
             foreach (Transform child in obj.transform)
-                GameObject.Destroy(child.gameObject);
+                GameObject.DestroyImmediate(child.gameObject);
 
         obj.transform.position = position;
         obj.transform.rotation = Quaternion.identity;
