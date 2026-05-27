@@ -153,7 +153,7 @@ public class UIManager : MonoBehaviour
         coinStyle.fontSize = 22;
         coinStyle.alignment = TextAnchor.UpperRight;
         coinStyle.normal.textColor = new Color(1f, 0.85f, 0.3f);
-        GUI.Label(new Rect(w - 200, 20, 170, 30), "金币 " + gm.coinCount, coinStyle);
+        GUI.Label(new Rect(w - 200, 20, 130, 30), "金币 " + gm.coinCount, coinStyle);
 
         // === 暂停按钮（右上角） ===
         GUIStyle pauseBtnStyle = new GUIStyle(GUI.skin.button);
