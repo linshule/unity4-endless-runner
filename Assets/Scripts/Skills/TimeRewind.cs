@@ -99,7 +99,7 @@ public class TimeRewind : MonoBehaviour
 
         while (elapsed < rewindDuration)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += Time.deltaTime;
             float t = elapsed / rewindDuration;
             player.SetPosition(Vector3.Lerp(startPos, endPos, t));
             yield return null;

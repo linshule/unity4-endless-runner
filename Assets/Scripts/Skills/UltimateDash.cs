@@ -58,10 +58,6 @@ public class UltimateDash : MonoBehaviour
         Collider tc = trail.GetComponent<Collider>();
         if (tc != null) tc.enabled = false;
 
-        // 关闭碰撞检测，穿墙冲刺
-        if (controller != null)
-            controller.detectCollisions = false;
-
         float elapsed = 0f;
         while (elapsed < dashDuration)
         {
@@ -88,10 +84,6 @@ public class UltimateDash : MonoBehaviour
         endPos.y = startPos.y;
         player.SetPosition(endPos);
         CollectCoinsAlongPath(endPos);
-
-        // 恢复碰撞
-        if (controller != null)
-            controller.detectCollisions = true;
 
         // 延迟取消无敌（防止恢复碰撞瞬间被判定碰撞）
         yield return new WaitForSeconds(0.25f);

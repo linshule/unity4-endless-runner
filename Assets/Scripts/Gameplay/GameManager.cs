@@ -87,7 +87,7 @@ public class GameManager : MonoBehaviour
         {
             // 闪红效果计时
             if (deathFlashTimer > 0f)
-                deathFlashTimer -= Time.unscaledDeltaTime;
+                deathFlashTimer -= Time.deltaTime;
         }
         else if (state == GameState.Paused)
         {
@@ -178,7 +178,7 @@ public class GameManager : MonoBehaviour
         float waitTime = 3f;
         while (waitTime > 0f && state == GameState.Dead)
         {
-            waitTime -= Time.unscaledDeltaTime;
+            waitTime -= Time.deltaTime;
             yield return null;
         }
         if (state == GameState.Dead)
@@ -211,7 +211,7 @@ public class GameManager : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < delay && state == GameState.Dead)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += Time.deltaTime;
             yield return null;
         }
         if (state == GameState.Dead)

@@ -217,7 +217,7 @@ public class UIManager : MonoBehaviour
             rewindStyle.alignment = TextAnchor.MiddleCenter;
             rewindStyle.normal.textColor = Color.yellow;
 
-            float alpha = 0.7f + Mathf.Sin(Time.unscaledTime * 3f) * 0.3f;
+            float alpha = 0.7f + Mathf.Sin(Time.time * 3f) * 0.3f;
             rewindStyle.normal.textColor = new Color(1f, 0.9f, 0.2f, alpha);
             GUI.Label(new Rect(0, h * 0.4f, w, 50), "按 空格 时间回溯！", rewindStyle);
         }
