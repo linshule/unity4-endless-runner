@@ -217,7 +217,7 @@ public class AdaptiveDifficulty : MonoBehaviour
         // 4. 列车追击速度
         if (trainController != null)
         {
-            trainController.baseApproachRate = Mathf.Lerp(baseTrainApproach, baseTrainApproach * 3f, t);
+            trainController.baseApproachRate = Mathf.Lerp(baseTrainApproach, baseTrainApproach * 2f, t);
         }
     }
 
