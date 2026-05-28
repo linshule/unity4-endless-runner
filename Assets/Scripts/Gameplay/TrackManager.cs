@@ -5,7 +5,7 @@ public class TrackManager : MonoBehaviour
 {
     public PlayerController player;
 
-    public float trackWidth = 5f;
+    public float trackWidth = 6f;
     public float segmentLength = 200f;
     public int segmentCount = 3;
     public float trackY = 0f;
