@@ -116,7 +116,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            verticalVelocity = -1f;
+            verticalVelocity = 0f;
         }
         move.y = verticalVelocity * Time.deltaTime;
 
