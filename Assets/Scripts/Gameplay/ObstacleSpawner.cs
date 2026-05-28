@@ -129,6 +129,7 @@ public class ObstacleSpawner : MonoBehaviour
         if (obj == null)
         {
             obj = (GameObject)GameObject.Instantiate(prefab, position, Quaternion.identity);
+            obstaclePool.Add(obj);
         }
         else
         {
@@ -175,7 +176,7 @@ public class ObstacleSpawner : MonoBehaviour
                 }
             }
 
-            ObstacleTag prefabTag = prefab.GetComponent<ObstacleTag>();
+            ObstacleTag prefabTag = prefab.GetComponentInParent<ObstacleTag>();
             if (prefabTag != null)
             {
                 ObstacleTag objTag = obj.GetComponent<ObstacleTag>();
@@ -184,7 +185,7 @@ public class ObstacleSpawner : MonoBehaviour
                 objTag.isDynamic = prefabTag.isDynamic;
 
             // 复制 DynamicObstacle 组件（旋转机关脚本）
-            DynamicObstacle prefabDyn = prefab.GetComponent<DynamicObstacle>();
+            DynamicObstacle prefabDyn = prefab.GetComponentInParent<DynamicObstacle>();
             if (prefabDyn != null)
             {
                 DynamicObstacle objDyn = obj.GetComponent<DynamicObstacle>();
@@ -339,8 +340,6 @@ public class ObstacleSpawner : MonoBehaviour
                 zone.transform.localPosition = new Vector3(0f, 1f, 0f);
                 zone.transform.localScale = new Vector3(1.5f, 2f, 2f);
                 zone.GetComponent<Renderer>().material.color = new Color(0.8f, 0.2f, 0.2f);
-                Collider col = zone.GetComponent<Collider>();
-                if (col != null) col.isTrigger = true;
                 tag.isTrap = true; tag.isDynamic = false;
             }
         }
