@@ -39,8 +39,10 @@ public class TerrainCollapse : MonoBehaviour
         isCollapsing = true;
         float laneX = (lane - 1) * 6f;
 
-        // 塌陷区紧跟玩家脚下前方
-        float baseZ = player.transform.position.z + Random.Range(12f, 20f);
+        // 塌陷区紧跟玩家脚下前方，动态适应速度
+        float totalCollapseTime = warningTime + sinkDuration;
+        float predictedDistance = player.currentSpeed * totalCollapseTime;
+        float baseZ = player.transform.position.z + predictedDistance + Random.Range(12f, 20f);
         float trapLength = 3f; // 足够长，即使跑过去也还在陷阱范围内
 
         // 地板碎片
@@ -83,21 +85,24 @@ public class TerrainCollapse : MonoBehaviour
         }
         floorPiece.SetActive(false);
 
-        // 黑洞现身 + 致命碰撞体
+        // 黑洞现身
         hole.SetActive(true);
-        BoxCollider killerCol = hole.AddComponent<BoxCollider>();
-        killerCol.size = new Vector3(3f, 1.5f, trapLength);
-        killerCol.center = new Vector3(0f, 0.8f, 0f);
+
+        // 新建独立碰撞体（不受hole缩放影响）
+        GameObject killerObj = new GameObject("CollapseKiller");
+        killerObj.transform.position = new Vector3(laneX, 0.5f, baseZ + trapLength * 0.5f);
+        killerObj.transform.localScale = Vector3.one;
+        BoxCollider killerCol = killerObj.AddComponent<BoxCollider>();
+        killerCol.size = new Vector3(3f, 3f, trapLength);
         killerCol.isTrigger = false;
 
-        ObstacleTag tag = hole.AddComponent<ObstacleTag>();
+        ObstacleTag tag = killerObj.AddComponent<ObstacleTag>();
         tag.isTrap = true;
 
         yield return new WaitForSeconds(trapDuration);
 
         // 恢复
-        Destroy(killerCol);
-        Destroy(tag);
+        Destroy(killerObj);
         float fadeStart = Time.time;
         while (Time.time - fadeStart < 0.5f)
         {

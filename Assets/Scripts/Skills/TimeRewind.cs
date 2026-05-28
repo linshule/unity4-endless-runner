@@ -14,7 +14,7 @@ public class TimeRewind : MonoBehaviour
         public float time;
     }
     private List<Snapshot> snapshots = new List<Snapshot>();
-    public float recordDuration = 3f;
+    public float recordDuration = 5f;
     public float recordInterval = 0.1f;
     private float recordTimer = 0f;
 
@@ -81,7 +81,7 @@ public class TimeRewind : MonoBehaviour
         gameManager.TriggerRewind();
 
         // 找 2 秒前快照
-        float targetTime = Time.time - 2f;
+        float targetTime = Time.time - 3f;
         Snapshot targetSnap = snapshots[0];
         for (int i = snapshots.Count - 1; i >= 0; i--)
         {

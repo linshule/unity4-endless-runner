@@ -34,6 +34,7 @@ public class AdaptiveDifficulty : MonoBehaviour
     // === 组件引用 ===
     private GameManager gameManager;
     private ObstacleSpawner obstacleSpawner;
+    private CoinSpawner coinSpawner;
     private TerrainCollapse terrainCollapse;
     private TrainController trainController;
     private PlayerController player;
@@ -59,6 +60,7 @@ public class AdaptiveDifficulty : MonoBehaviour
         gameManager = GameManager.Instance;
         player = FindObjectOfType<PlayerController>();
         obstacleSpawner = FindObjectOfType<ObstacleSpawner>();
+        coinSpawner = FindObjectOfType<CoinSpawner>();
         terrainCollapse = FindObjectOfType<TerrainCollapse>();
         trainController = FindObjectOfType<TrainController>();
 
@@ -197,14 +199,17 @@ public class AdaptiveDifficulty : MonoBehaviour
             player.currentSpeed = Mathf.Min(player.currentSpeed, player.maxSpeed);
         }
 
-        // 2. 障碍物生成器
+        // 2. 障碍物 + 金币生成距离
         if (obstacleSpawner != null)
         {
             obstacleSpawner.SetDifficulty(difficultyLevel);
-
-            // 高难度缩小生成间距
-            obstacleSpawner.spawnDistanceMin = Mathf.Lerp(80f, 30f, t);
-            obstacleSpawner.spawnDistanceMax = Mathf.Lerp(150f, 60f, t);
+            obstacleSpawner.spawnDistanceMin = Mathf.Lerp(80f, 50f, t);
+            obstacleSpawner.spawnDistanceMax = Mathf.Lerp(150f, 100f, t);
+        }
+        if (coinSpawner != null)
+        {
+            coinSpawner.spawnDistanceMin = Mathf.Lerp(120f, 90f, t);
+            coinSpawner.spawnDistanceMax = Mathf.Lerp(250f, 200f, t);
         }
 
         // 3. 地形塌陷频率

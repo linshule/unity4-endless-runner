@@ -5,7 +5,7 @@ public class TrainController : MonoBehaviour
     public PlayerController player;
     
     // === 列车参数 ===
-    public float initialDistance = 150f;
+    public float initialDistance = 300f;
     public float minDistance = 10f;
     public float currentDistance;
     
