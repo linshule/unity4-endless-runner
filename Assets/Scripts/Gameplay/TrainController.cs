@@ -134,7 +134,7 @@ public class TrainController : MonoBehaviour
 
     public void ApplyDeathPenalty()
     {
-        currentDistance -= penaltyApproachRate;
+        currentDistance = Mathf.Max(currentDistance - penaltyApproachRate, minDistance);
     }
 
     public void RestoreDistance()
