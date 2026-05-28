@@ -137,9 +137,7 @@ public class UltimateDash : MonoBehaviour
             foreach (Collider hit in hits)
             {
                 GameObject obj = hit.gameObject;
-                ObstacleTag tag = obj.GetComponent<ObstacleTag>();
-                if (tag == null && obj.transform.parent != null)
-                    tag = obj.transform.parent.GetComponent<ObstacleTag>();
+                ObstacleTag tag = obj.GetComponentInParent<ObstacleTag>();
                 if (tag != null && obj.activeInHierarchy)
                 {
                     if (obj.transform.parent != null)

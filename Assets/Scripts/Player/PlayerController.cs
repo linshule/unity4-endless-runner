@@ -268,10 +268,8 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead) return;
 
-        // 检查是否是障碍物
-        ObstacleTag tag = hit.gameObject.GetComponent<ObstacleTag>();
-        if (tag == null && hit.transform.parent != null)
-            tag = hit.transform.parent.GetComponent<ObstacleTag>();
+        // 检查是否是障碍物（递归查找父级，支持多层嵌套）
+        ObstacleTag tag = hit.gameObject.GetComponentInParent<ObstacleTag>();
 
         if (tag != null)
         {
