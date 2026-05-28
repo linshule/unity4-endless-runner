@@ -6,8 +6,8 @@ public class CoinSpawner : MonoBehaviour
     public PlayerController player;
     public GameObject coinPrefab;
 
-    public float spawnDistanceMin = 50f;
-    public float spawnDistanceMax = 150f;
+    public float spawnDistanceMin = 120f;
+    public float spawnDistanceMax = 250f;
     public float floatCoinHeight = 5f;
     public float floatCoinChance = 0.35f;
 
@@ -79,7 +79,7 @@ public class CoinSpawner : MonoBehaviour
     void SpawnCoinGroup()
     {
         int count = Random.Range(1, 4);
-        float startZ = nextSpawnZ;
+        float startZ = player.transform.position.z + Random.Range(spawnDistanceMin, spawnDistanceMax);
 
         for (int i = 0; i < count; i++)
         {
