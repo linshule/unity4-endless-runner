@@ -14,11 +14,13 @@ public class CoinSpawner : MonoBehaviour
     private float nextSpawnZ;
     private List<GameObject> coinPool = new List<GameObject>();
     public int poolSize = 15;
+    private PowerUpManager powerUpManager;
 
     void Start()
     {
         if (player == null)
             player = FindObjectOfType<PlayerController>();
+        powerUpManager = FindObjectOfType<PowerUpManager>();
         nextSpawnZ = spawnDistanceMin;
         InitializePool();
     }
@@ -78,7 +80,8 @@ public class CoinSpawner : MonoBehaviour
 
     void SpawnCoinGroup()
     {
-        int count = Random.Range(1, 4);
+        bool doubleScore = powerUpManager != null && powerUpManager.IsDoubleScoreActive();
+        int count = doubleScore ? Random.Range(4, 9) : Random.Range(1, 4);
         float startZ = player.transform.position.z + Random.Range(spawnDistanceMin, spawnDistanceMax);
 
         for (int i = 0; i < count; i++)
