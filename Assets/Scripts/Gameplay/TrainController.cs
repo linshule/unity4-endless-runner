@@ -43,7 +43,7 @@ public class TrainController : MonoBehaviour
         head.name = "TrainHead";
         head.transform.parent = transform;
         head.transform.localPosition = new Vector3(0f, 2f, 3f);
-        head.transform.localScale = new Vector3(5f, 3f, 3f);
+        head.transform.localScale = new Vector3(14f, 3f, 3f);
         Renderer headR = head.GetComponent<Renderer>();
         headR.material.color = new Color(0.5f, 0.1f, 0.1f);
         Destroy(head.GetComponent<Collider>());
@@ -54,7 +54,7 @@ public class TrainController : MonoBehaviour
             car.name = "TrainCar_" + i;
             car.transform.parent = transform;
             car.transform.localPosition = new Vector3(0f, 2f, -1f - i * 3f);
-            car.transform.localScale = new Vector3(4.5f, 3f, 3.5f);
+            car.transform.localScale = new Vector3(14f, 3f, 3.5f);
             car.GetComponent<Renderer>().material.color = new Color(0.4f, 0.08f, 0.08f);
             Destroy(car.GetComponent<Collider>());
         }
