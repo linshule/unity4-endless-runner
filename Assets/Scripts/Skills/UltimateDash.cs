@@ -114,6 +114,13 @@ public class UltimateDash : MonoBehaviour
                 if (gm != null)
                     gm.coinCount += coin.coinValue;
 
+                if (player != null)
+                    player.IncreaseSpeed(0.2f);
+
+                TrainController train = FindObjectOfType<TrainController>();
+                if (train != null)
+                    train.OnCoinCollected();
+
                 hit.gameObject.SetActive(false);
             }
         }
