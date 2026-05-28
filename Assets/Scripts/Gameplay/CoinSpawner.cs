@@ -79,7 +79,7 @@ public class CoinSpawner : MonoBehaviour
     void SpawnCoinGroup()
     {
         int count = Random.Range(1, 4);
-        float startZ = player.transform.position.z + Random.Range(spawnDistanceMin, spawnDistanceMax);
+        float startZ = nextSpawnZ;
 
         for (int i = 0; i < count; i++)
         {
