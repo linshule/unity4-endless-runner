@@ -120,7 +120,7 @@ public class UltimateDash : MonoBehaviour
                 TrainController train = FindObjectOfType<TrainController>();
                 if (train != null)
                 {
-                    train.AddDistance(3f);
+                    train.AddDistance(10f);
                     train.OnCoinCollected();
                 }
 
