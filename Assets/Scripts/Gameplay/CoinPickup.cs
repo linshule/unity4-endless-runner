@@ -6,7 +6,6 @@ public class CoinPickup : MonoBehaviour
 
     void Update()
     {
-        // 持续旋转动画
         transform.Rotate(0f, 180f * Time.deltaTime, 0f);
     }
 
@@ -25,14 +24,20 @@ public class CoinPickup : MonoBehaviour
                 HUDController.Instance.OnCoinCollected();
             }
 
-            // 拾取金币推开列车 +3m
+            // 金币增加人物速度
+            PlayerController player = FindObjectOfType<PlayerController>();
+            if (player != null)
+            {
+                player.IncreaseSpeed(0.2f);
+            }
+
+            // 重置列车饥饿计时器
             TrainController train = FindObjectOfType<TrainController>();
             if (train != null)
             {
-                train.AddDistance(3f);
+                train.OnCoinCollected();
             }
 
-            // 回收
             gameObject.SetActive(false);
         }
     }

@@ -248,6 +248,11 @@ public class PlayerController : MonoBehaviour
             headObj.transform.localPosition = new Vector3(0f, 1.8f, 0f);
     }
 
+    public void IncreaseSpeed(float amount)
+    {
+        currentSpeed = Mathf.Min(currentSpeed + amount, maxSpeed);
+    }
+
     public void SetPosition(Vector3 pos)
     {
         transform.position = pos;
