@@ -24,17 +24,17 @@ public class CoinPickup : MonoBehaviour
                 HUDController.Instance.OnCoinCollected();
             }
 
-            // 金币增加人物速度
+            // 金币增加人物速度 + 推开列车
             PlayerController player = FindObjectOfType<PlayerController>();
             if (player != null)
             {
-                player.IncreaseSpeed(0.2f);
+                player.IncreaseSpeed(0.5f);
             }
 
-            // 重置列车饥饿计时器
             TrainController train = FindObjectOfType<TrainController>();
             if (train != null)
             {
+                train.AddDistance(3f);
                 train.OnCoinCollected();
             }
 
