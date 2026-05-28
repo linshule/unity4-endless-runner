@@ -6,7 +6,7 @@ public class PowerUpManager : MonoBehaviour
     
     // === I01 双倍分数 ===
     public GameObject doubleScorePrefab;
-    public float doubleScoreDuration = 10f;
+    public float doubleScoreDuration = 20f;
     private bool doubleScoreActive = false;
     private float doubleScoreTimer = 0f;
 
