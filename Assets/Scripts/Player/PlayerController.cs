@@ -44,19 +44,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        controller = GetComponent<CharacterController>();
-        if (controller == null)
-        {
-            controller = gameObject.AddComponent<CharacterController>();
-        }
-
-        controller.height = 2f;
-        controller.radius = 0.5f;
-        controller.center = new Vector3(0f, 1f, 0f);
-
-        originalHeight = controller.height;
-        originalCenterY = controller.center.y;
-
+        EnsureComponents();
         currentSpeed = baseSpeed;
 
         // 初始位置
@@ -222,6 +210,27 @@ public class PlayerController : MonoBehaviour
             float slideGroundY = 1.2f - (originalHeight - slideHeight) * 0.5f;
             isGrounded = (transform.position.y <= slideGroundY && verticalVelocity <= 0f);
         }
+    }
+
+    public void EnsureComponents()
+    {
+        if (controller != null) return;
+
+        controller = GetComponent<CharacterController>();
+        if (controller == null)
+            controller = gameObject.AddComponent<CharacterController>();
+
+        controller.height = 2f;
+        controller.radius = 0.5f;
+        controller.center = new Vector3(0f, 1f, 0f);
+
+        originalHeight = controller.height;
+        originalCenterY = controller.center.y;
+
+        Transform t = transform.Find("PlayerBody");
+        if (t != null) bodyObj = t.gameObject;
+        t = transform.Find("PlayerHead");
+        if (t != null) headObj = t.gameObject;
     }
 
     public void Die()

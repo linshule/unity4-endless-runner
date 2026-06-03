@@ -68,14 +68,8 @@ public class GameManager : MonoBehaviour
         if (restartRequested)
         {
             restartRequested = false;
-            StartCoroutine(DelayedStartGame());
+            StartGame();
         }
-    }
-
-    IEnumerator DelayedStartGame()
-    {
-        yield return null;
-        StartGame();
     }
 
     void Update()
@@ -125,6 +119,17 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         FindPlayer();
+
+        if (player != null)
+        {
+            player.EnsureComponents();
+            player.Revive();
+        }
+        else
+        {
+            return;
+        }
+
         state = GameState.Playing;
         score = 0f;
         coinCount = 0;
@@ -134,11 +139,7 @@ public class GameManager : MonoBehaviour
         rewindUsed = false;
         deathFlashTimer = 0f;
 
-        if (player != null)
-        {
-            player.Revive();
-            player.isDashing = false;
-        }
+        player.isDashing = false;
 
         // 还原时间缩放
         Time.timeScale = 1f;
