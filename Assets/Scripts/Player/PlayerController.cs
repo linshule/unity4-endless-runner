@@ -281,4 +281,21 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    // === 触发器碰撞检测：处理 DeathZone 等 isTrigger 障碍物 ===
+    void OnTriggerEnter(Collider other)
+    {
+        if (isDead) return;
+
+        ObstacleTag tag = other.GetComponentInParent<ObstacleTag>();
+        if (tag != null)
+        {
+            if (isInvincible) return;
+            GameManager gm = GameManager.Instance;
+            if (gm != null && gm.state == GameState.Playing)
+            {
+                gm.OnPlayerHitObstacle();
+            }
+        }
+    }
 }

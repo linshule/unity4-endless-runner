@@ -379,8 +379,6 @@ public class ProjectBuilder
         gapVis.transform.localPosition = new Vector3(0f, 0.02f, 0f);
         gapVis.transform.localScale = new Vector3(4f, 0.05f, 3f);
         SetCubeColor(gapVis, new Color(0.25f, 0.25f, 0.25f));
-        Collider gapCol = gapVis.GetComponent<Collider>();
-        if (gapCol != null) gapCol.enabled = false;
 
         CreatePrefabAsset(obj, "Assets/Prefabs/Obstacles/Gap.prefab");
         GameObject.DestroyImmediate(obj);
@@ -424,17 +422,14 @@ public class ProjectBuilder
         ObstacleTag tag = obj.AddComponent<ObstacleTag>();
         tag.isTrap = true;
 
-        // 可视指示器：黑色平板
+        // 可视指示器：黑色平板 + 死亡碰撞体
         GameObject plate = CreatePrimSafe(PrimitiveType.Cube);
         plate.transform.parent = obj.transform;
-        plate.transform.localPosition = new Vector3(0f, -2f, 0f);
-        plate.transform.localScale = new Vector3(6f, 0.1f, 10f);
+        plate.transform.localPosition = new Vector3(0f, -0.8f, 0f);
+        plate.transform.localScale = new Vector3(6f, 1.5f, 10f);
 
         Renderer r = plate.GetComponent<Renderer>();
         if (r != null) SetCubeColor(plate, Color.black);
-
-        Collider col = plate.GetComponent<Collider>();
-        if (col != null) col.enabled = false;
 
         CreatePrefabAsset(obj, "Assets/Prefabs/Obstacles/Pit.prefab");
         GameObject.DestroyImmediate(obj);

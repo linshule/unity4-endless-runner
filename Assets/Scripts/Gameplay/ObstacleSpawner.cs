@@ -146,6 +146,11 @@ public class ObstacleSpawner : MonoBehaviour
                 copy.transform.localPosition = child.localPosition;
                 copy.transform.localRotation = child.localRotation;
                 copy.transform.localScale = child.localScale;
+
+                // 确保陷阱子对象的碰撞体始终启用
+                Collider childCol = copy.GetComponent<Collider>();
+                if (childCol != null && !childCol.enabled)
+                    childCol.enabled = true;
             }
 
             Collider prefabCol = prefab.GetComponent<Collider>();
@@ -259,27 +264,16 @@ public class ObstacleSpawner : MonoBehaviour
             }
             else if (subtype == 3)
             {
-                // 断台：显示黑色缺口标记 + 实际移除该轨道段碰撞体 + 下方死亡触发
+                // 断台：显示黑色缺口标记 + 移除该轨道段碰撞体
                 tag.isTrap = true; tag.isDynamic = false;
                 GameObject gapVis = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 gapVis.transform.parent = obj.transform;
                 gapVis.transform.localPosition = new Vector3(0f, 0.02f, 0f);
                 gapVis.transform.localScale = new Vector3(4f, 0.05f, 3f);
                 gapVis.GetComponent<Renderer>().material.color = new Color(0.25f, 0.25f, 0.25f);
-                Collider gapCol = gapVis.GetComponent<Collider>();
-                if (gapCol != null) gapCol.enabled = false;
+                // 碰撞体保持启用，玩家触碰即触发死亡
                 if (trackManager != null && lane >= 0)
                     trackManager.DisableTrackColliderAt(lane, position.z);
-
-                // 缺口下方死亡碰撞体（玩家下坠时即死，不等 Y<-5）
-                GameObject deathBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                deathBar.name = "GapDeathBar";
-                deathBar.transform.parent = obj.transform;
-                deathBar.transform.localPosition = new Vector3(0f, -1.5f, 0f);
-                deathBar.transform.localScale = new Vector3(5f, 0.5f, 4f);
-                deathBar.GetComponent<Renderer>().material.color = new Color(0.05f, 0.05f, 0.05f);
-                ObstacleTag deathTag = deathBar.AddComponent<ObstacleTag>();
-                deathTag.isTrap = true;
             }
             else
             {
@@ -311,27 +305,16 @@ public class ObstacleSpawner : MonoBehaviour
             int subtype = Random.Range(0, 2);
             if (subtype == 0)
             {
-                // 深坑：黑色平板标记 + 实际移除该轨道段碰撞体 + 下方死亡触发
+                // 深坑：黑色平板标记 + 移除该轨道段碰撞体
                 tag.isTrap = true; tag.isDynamic = false;
                 GameObject pitVis = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 pitVis.transform.parent = obj.transform;
                 pitVis.transform.localPosition = new Vector3(0f, -0.1f, 0f);
                 pitVis.transform.localScale = new Vector3(4f, 0.05f, 3f);
                 pitVis.GetComponent<Renderer>().material.color = new Color(0.25f, 0.2f, 0.15f);
-                Collider pitCol = pitVis.GetComponent<Collider>();
-                if (pitCol != null) pitCol.enabled = false;
+                // 碰撞体保持启用，玩家触碰即触发死亡
                 if (trackManager != null && lane >= 0)
                     trackManager.DisableTrackColliderAt(lane, position.z);
-
-                // 深坑下方死亡碰撞体
-                GameObject deathBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                deathBar.name = "PitDeathBar";
-                deathBar.transform.parent = obj.transform;
-                deathBar.transform.localPosition = new Vector3(0f, -1.5f, 0f);
-                deathBar.transform.localScale = new Vector3(5f, 0.5f, 4f);
-                deathBar.GetComponent<Renderer>().material.color = new Color(0.05f, 0.05f, 0.05f);
-                ObstacleTag deathTag = deathBar.AddComponent<ObstacleTag>();
-                deathTag.isTrap = true;
             }
             else
             {
