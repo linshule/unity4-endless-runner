@@ -68,8 +68,14 @@ public class GameManager : MonoBehaviour
         if (restartRequested)
         {
             restartRequested = false;
-            StartGame();
+            StartCoroutine(DelayedStartGame());
         }
+    }
+
+    IEnumerator DelayedStartGame()
+    {
+        yield return null;
+        StartGame();
     }
 
     void Update()
