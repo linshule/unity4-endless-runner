@@ -13,6 +13,7 @@ public enum GameState
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public static bool restartRequested = false;
 
     public GameState state = GameState.Menu;
     public PlayerController player;
@@ -60,6 +61,15 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         FindPlayer();
+    }
+
+    void OnLevelWasLoaded(int level)
+    {
+        if (restartRequested)
+        {
+            restartRequested = false;
+            StartGame();
+        }
     }
 
     void Update()
@@ -248,12 +258,13 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
-        state = GameState.Menu;
+        restartRequested = true;
         Application.LoadLevel(Application.loadedLevel);
     }
 
     public void LoadMainMenu()
     {
+        restartRequested = false;
         state = GameState.Menu;
         Application.LoadLevel(Application.loadedLevel);
     }
